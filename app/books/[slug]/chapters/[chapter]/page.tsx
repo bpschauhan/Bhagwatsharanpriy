@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ContinueReadingCard } from "@/components/books/reading-state";
 import { VerseRow } from "@/components/books/verse-row";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { books, getBookBySlug, getChapterByNumber } from "@/lib/content/gita";
+import { chapterRouteParamsSchema } from "@/lib/validation/content";
+import { getBook, getBooks, getChapter } from "@/lib/queries/books";
 
 type ChapterPageProps = {
   params: Promise<{ slug: string; chapter: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const books = await getBooks();
   return books.flatMap((book) =>
     book.chapters.map((chapter) => ({
       slug: book.slug,
@@ -23,8 +26,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ChapterPageProps): Promise<Metadata> {
   const { slug, chapter } = await params;
-  const book = getBookBySlug(slug);
-  const currentChapter = getChapterByNumber(slug, Number(chapter));
+  const parsed = chapterRouteParamsSchema.safeParse({ slug, chapter });
+
+  if (!parsed.success) {
+    return {};
+  }
+
+  const book = await getBook(parsed.data.slug);
+  const currentChapter = await getChapter(parsed.data.slug, parsed.data.chapter);
 
   if (!book || !currentChapter) {
     return {};
@@ -43,12 +52,23 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
 
 export default async function ChapterPage({ params }: ChapterPageProps) {
   const { slug, chapter } = await params;
-  const book = getBookBySlug(slug);
-  const currentChapter = getChapterByNumber(slug, Number(chapter));
+  const parsed = chapterRouteParamsSchema.safeParse({ slug, chapter });
+
+  if (!parsed.success) {
+    notFound();
+  }
+
+  const book = await getBook(parsed.data.slug);
+  const currentChapter = await getChapter(parsed.data.slug, parsed.data.chapter);
 
   if (!book || !currentChapter) {
     notFound();
   }
+
+  const firstVerse = currentChapter.verses[0];
+  const firstVerseHref = firstVerse
+    ? `/books/${book.slug}/chapters/${currentChapter.number}/verses/${firstVerse.number}`
+    : undefined;
 
   return (
     <>
@@ -66,6 +86,9 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
 
       <Section className="bg-card/45">
         <Container>
+          <div className="mb-6">
+            <ContinueReadingCard fallbackHref={firstVerseHref} fallbackLabel={`Begin Chapter ${currentChapter.number}`} />
+          </div>
           <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
             <div className="space-y-5">
               <Card>
@@ -78,10 +101,10 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
                 <CardContent className="p-6">
                   <h2 className="font-serif text-2xl font-semibold">Progress</h2>
                   <p className="mt-3 text-sm text-muted-foreground">
-                    {currentChapter.verses.length} guided verses available in this study seed.
+                    {currentChapter.verses.length} guided verses available. Open a verse to mark it in your local reading progress.
                   </p>
                   <div className="mt-5 h-2 rounded-full bg-muted">
-                    <div className="h-2 w-1/3 rounded-full bg-primary" />
+                    <div className="h-2 w-1/4 rounded-full bg-primary" />
                   </div>
                 </CardContent>
               </Card>

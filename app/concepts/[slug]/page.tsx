@@ -9,19 +9,22 @@ import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { conceptProfiles, getConceptProfile } from "@/lib/content/knowledge-graph";
+import { getConceptProfile, getConceptProfiles } from "@/lib/queries/concepts";
+import { conceptRouteParamsSchema } from "@/lib/validation/content";
 
 type ConceptPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const conceptProfiles = await getConceptProfiles();
   return conceptProfiles.map((concept) => ({ slug: concept.slug }));
 }
 
 export async function generateMetadata({ params }: ConceptPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const concept = getConceptProfile(slug);
+  const parsed = conceptRouteParamsSchema.safeParse({ slug });
+  const concept = parsed.success ? await getConceptProfile(parsed.data.slug) : undefined;
 
   if (!concept) {
     return {};
@@ -40,7 +43,13 @@ export async function generateMetadata({ params }: ConceptPageProps): Promise<Me
 
 export default async function ConceptPage({ params }: ConceptPageProps) {
   const { slug } = await params;
-  const concept = getConceptProfile(slug);
+  const parsed = conceptRouteParamsSchema.safeParse({ slug });
+
+  if (!parsed.success) {
+    notFound();
+  }
+
+  const concept = await getConceptProfile(parsed.data.slug);
 
   if (!concept) {
     notFound();

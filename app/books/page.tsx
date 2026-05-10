@@ -4,7 +4,7 @@ import { BookCard } from "@/components/books/book-card";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
-import { books } from "@/lib/content/gita";
+import { getBooks } from "@/lib/queries/books";
 
 export const metadata: Metadata = {
   title: "Books | Bhagwatsharanpriy",
@@ -16,7 +16,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BooksPage() {
+export default async function BooksPage() {
+  const books = await getBooks();
+
   return (
     <Section className="pt-24 sm:pt-28">
       <Container>

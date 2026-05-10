@@ -5,7 +5,8 @@ import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { RecentSearches } from "@/components/search/recent-searches";
 import { SearchResults } from "@/components/search/search-results";
-import { searchKnowledge } from "@/lib/search/search-engine";
+import { searchWisdom } from "@/lib/search";
+import { searchParamsSchema } from "@/lib/validation/content";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -13,7 +14,7 @@ type SearchPageProps = {
 
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const { q } = await searchParams;
-  const query = q?.trim();
+  const query = searchParamsSchema.parse({ q }).q;
 
   return {
     title: query ? `Search "${query}" | Bhagwatsharanpriy` : "Search | Bhagwatsharanpriy",
@@ -28,8 +29,8 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
-  const query = q ?? "";
-  const response = searchKnowledge(query);
+  const query = searchParamsSchema.parse({ q }).q;
+  const response = await searchWisdom(query);
 
   return (
     <>

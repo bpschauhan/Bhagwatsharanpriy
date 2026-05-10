@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 30 100% 97%;
-    --foreground: 215 28% 17%;
+    --foreground: 215 31% 14%;
     --card: 35 70% 98%;
     --card-foreground: 215 28% 17%;
     --primary: 44 100% 48%;
@@ -13,7 +13,7 @@
     --secondary: 356 78% 56%;
     --secondary-foreground: 0 0% 100%;
     --muted: 32 24% 91%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 218 11% 38%;
     --border: 33 32% 84%;
     --input: 33 32% 84%;
     --ring: 44 100% 48%;
@@ -35,7 +35,7 @@
     --secondary: 356 78% 56%;
     --secondary-foreground: 0 0% 100%;
     --muted: 221 28% 18%;
-    --muted-foreground: 220 9% 72%;
+    --muted-foreground: 218 14% 78%;
     --border: 221 22% 24%;
     --input: 221 22% 24%;
     --ring: 44 100% 48%;
@@ -59,8 +59,8 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     background:
-      radial-gradient(circle at 12% 8%, rgba(var(--surface-glow), 0.12), transparent 32rem),
-      radial-gradient(circle at 88% 18%, rgba(230, 57, 70, 0.06), transparent 28rem),
+      radial-gradient(circle at 12% 8%, rgba(var(--surface-glow), 0.07), transparent 30rem),
+      radial-gradient(circle at 88% 18%, rgba(230, 57, 70, 0.035), transparent 26rem),
       hsl(var(--background));
   }
 
@@ -77,9 +77,9 @@
     z-index: -1;
     overflow: hidden;
     background:
-      radial-gradient(circle at 18% 18%, rgba(var(--surface-glow), 0.12), transparent 24rem),
-      radial-gradient(circle at 78% 12%, rgba(230, 57, 70, 0.055), transparent 22rem),
-      radial-gradient(circle at 52% 84%, rgba(255, 255, 255, 0.45), transparent 26rem);
+      radial-gradient(circle at 18% 18%, rgba(var(--surface-glow), 0.06), transparent 24rem),
+      radial-gradient(circle at 78% 12%, rgba(230, 57, 70, 0.03), transparent 22rem),
+      radial-gradient(circle at 52% 84%, rgba(255, 255, 255, 0.26), transparent 26rem);
     animation: ambient-drift 26s var(--ease-soft) infinite alternate;
   }
 
@@ -87,24 +87,24 @@
     content: "";
     position: absolute;
     inset: 0;
-    opacity: 0.18;
+    opacity: 0.11;
     mix-blend-mode: multiply;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-      radial-gradient(circle at 50% 50%, rgba(31, 41, 55, 0.09) 0.55px, transparent 0.8px);
+      linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 50% 50%, rgba(31, 41, 55, 0.06) 0.55px, transparent 0.8px);
     background-size: 120px 120px, 120px 120px, 5px 5px;
   }
 
   .surface-calm {
-    border: 1px solid hsl(var(--border) / 0.82);
+    border: 1px solid hsl(var(--border) / 0.94);
     background:
-      linear-gradient(180deg, hsl(var(--card) / 0.94), hsl(var(--card) / 0.82)),
-      radial-gradient(circle at 20% 0%, rgba(var(--surface-glow), 0.08), transparent 18rem);
+      linear-gradient(180deg, hsl(var(--card) / 0.98), hsl(var(--card) / 0.92)),
+      radial-gradient(circle at 20% 0%, rgba(var(--surface-glow), 0.035), transparent 18rem);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.6) inset,
-      0 24px 80px -58px rgba(var(--surface-ink), 0.56);
-    backdrop-filter: blur(10px);
+      0 20px 62px -52px rgba(var(--surface-ink), 0.5);
+    backdrop-filter: blur(4px);
   }
 
   .section-lit {
@@ -119,12 +119,77 @@
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(circle at 22% 10%, rgba(var(--surface-glow), 0.12), transparent 27rem),
-      radial-gradient(circle at 85% 42%, rgba(230, 57, 70, 0.045), transparent 24rem);
+      radial-gradient(circle at 22% 10%, rgba(var(--surface-glow), 0.06), transparent 27rem),
+      radial-gradient(circle at 85% 42%, rgba(230, 57, 70, 0.025), transparent 24rem);
   }
 
   .reading-measure {
-    max-width: 70ch;
+    max-width: 64ch;
+  }
+
+  .reading-frame {
+    --scripture-scale: clamp(2rem, 6.4vw, 2.65rem);
+    --scripture-leading: 1.78;
+    --reading-copy-leading: 1.82;
+  }
+
+  .reading-frame .reading-measure {
+    line-height: var(--reading-copy-leading);
+  }
+
+  .reading-focus-frame .reading-measure {
+    max-width: 62ch;
+  }
+
+  .reading-dark-parchment {
+    border-radius: 0.75rem;
+    background:
+      linear-gradient(180deg, hsl(32 36% 16% / 0.98), hsl(32 34% 12% / 0.98)),
+      radial-gradient(circle at 28% 0%, rgba(var(--surface-glow), 0.07), transparent 24rem);
+    color: hsl(40 34% 91%);
+  }
+
+  .reading-dark-parchment .surface-calm,
+  .reading-dark-parchment .scripture-card,
+  .reading-dark-parchment .scripture-panel {
+    border-color: hsl(38 30% 34% / 0.75);
+    background: hsl(34 31% 18% / 0.95);
+    color: hsl(40 34% 91%);
+  }
+
+  .reading-dark-parchment .text-foreground,
+  .reading-dark-parchment [class*="text-foreground/"] {
+    color: hsl(40 34% 91% / 0.88);
+  }
+
+  .reading-dark-parchment .text-muted-foreground {
+    color: hsl(39 20% 78% / 0.82);
+  }
+
+  .reading-dark-parchment .bg-background {
+    background-color: hsl(34 31% 14% / 0.92);
+  }
+
+  .scripture-sanskrit {
+    font-size: var(--scripture-scale);
+    line-height: var(--scripture-leading);
+    letter-spacing: 0;
+    text-wrap: pretty;
+  }
+
+  .scripture-transliteration {
+    line-height: var(--reading-copy-leading);
+    text-wrap: pretty;
+  }
+
+  .reading-hide-transliteration .scripture-transliteration,
+  .reading-hide-commentary .reading-commentary {
+    display: none;
+  }
+
+  .reading-copy {
+    line-height: var(--reading-copy-leading);
+    text-wrap: pretty;
   }
 
   .focus-ring-calm {
@@ -146,10 +211,10 @@
 
   .hover-lift {
     transition:
-      transform 420ms var(--ease-premium),
-      box-shadow 420ms var(--ease-premium),
-      border-color 420ms var(--ease-premium),
-      background-color 420ms var(--ease-premium);
+      transform 300ms var(--ease-premium),
+      box-shadow 300ms var(--ease-premium),
+      border-color 300ms var(--ease-premium),
+      background-color 300ms var(--ease-premium);
   }
 
   .hover-lift:hover {

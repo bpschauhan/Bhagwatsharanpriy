@@ -17,18 +17,18 @@ export function SearchCard({ result, query }: SearchCardProps) {
 
   return (
     <Link href={result.href as Route} className="group block">
-      <Card className="transition-transform duration-500 ease-premium group-hover:-translate-y-0.5">
+      <Card className="transition-colors duration-300 ease-premium group-hover:border-primary/35">
         <CardContent className="p-5">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <Badge variant="outline">{result.type}</Badge>
             <Badge variant="muted">{result.reason}</Badge>
           </div>
-          <p className="mb-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">{breadcrumb}</p>
+          <p className="mb-2 text-xs uppercase tracking-[0.16em] text-foreground/64">{breadcrumb}</p>
           <h3 className="font-serif text-xl font-semibold">
             <HighlightedText text={result.title} query={query} />
           </h3>
-          {result.subtitle ? <p className="mt-1 text-sm text-muted-foreground">{result.subtitle}</p> : null}
-          <p className="mt-4 line-clamp-3 leading-7 text-muted-foreground">
+          {result.subtitle ? <p className="mt-1 text-sm text-foreground/72">{result.subtitle}</p> : null}
+          <p className="mt-4 line-clamp-3 leading-7 text-foreground/76">
             <HighlightedText text={excerpt} query={query} />
           </p>
           <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium">

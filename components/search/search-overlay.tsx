@@ -99,7 +99,7 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="fixed inset-0 z-[100] bg-background/82 p-4 backdrop-blur-xl"
+          className="fixed inset-0 z-[100] bg-background/92 p-4"
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -115,7 +115,7 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: reduceMotion ? 0 : 0.24, ease: "easeOut" }}
           >
-            <form onSubmit={submit} className="flex items-center gap-3 border-b border-border bg-background/35 p-4 sm:p-5">
+            <form onSubmit={submit} className="flex items-center gap-3 border-b border-border bg-background p-4 sm:p-5">
               <Search className="size-5 shrink-0 text-primary" aria-hidden="true" />
               <input
                 ref={inputRef}
@@ -137,7 +137,7 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
                     openSuggestion(activeIndex);
                   }
                 }}
-                className="min-h-12 flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground"
+                className="min-h-12 flex-1 bg-transparent text-lg text-foreground outline-none placeholder:text-muted-foreground"
                 placeholder="Search verses, concepts, Sanskrit, meanings..."
                 aria-label="Search query"
               />
@@ -149,7 +149,7 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
             <div className="max-h-[72vh] overflow-y-auto p-3 [scrollbar-color:hsl(var(--border))_transparent] sm:p-5">
               {query.trim() ? (
                 <div className="grid gap-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-1 pb-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5">
                       <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
                       Semantic matches, relationships, and nearby concepts
@@ -161,8 +161,8 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
                       key={suggestion.id}
                       href={suggestion.href as Route}
                       className={cn(
-                        "focus-ring-calm group grid gap-3 rounded-lg border border-border/70 bg-background/55 p-4 transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-primary/40 hover:bg-background/80 hover:shadow-glow sm:grid-cols-[minmax(0,1fr)_auto]",
-                        index === activeIndex && "border-primary/40 bg-primary/10",
+                        "focus-ring-calm group grid gap-3 rounded-lg border border-border bg-background p-4 transition-colors duration-300 ease-premium hover:border-primary/45 hover:bg-muted sm:grid-cols-[minmax(0,1fr)_auto]",
+                        index === activeIndex && "border-primary/60 bg-primary/15",
                       )}
                       onClick={() => {
                         saveRecentSearch(query);
@@ -172,23 +172,23 @@ export function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="font-serif text-lg font-semibold leading-tight">{suggestion.title}</span>
-                          <span className="rounded-full bg-muted px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          <span className="rounded-full bg-muted px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-foreground/70">
                             {suggestion.type}
                           </span>
-                          <span className="rounded-full bg-background/75 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          <span className="rounded-full border border-border bg-background px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-foreground/70">
                             {suggestion.reason}
                           </span>
                         </span>
-                        <span className="mt-2 line-clamp-2 block text-sm leading-6 text-muted-foreground">
+                        <span className="mt-2 line-clamp-2 block text-sm leading-6 text-foreground/76">
                           {suggestion.body}
                         </span>
                       </span>
-                      <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                      <ArrowRight className="mt-1 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
                     </Link>
                   ))}
                   <button
                     type="button"
-                    className="focus-ring-calm mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:bg-primary/90"
+                    className="focus-ring-calm mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors duration-300 ease-premium hover:bg-primary/90"
                     onClick={runSearch}
                   >
                     Search all results for {query}

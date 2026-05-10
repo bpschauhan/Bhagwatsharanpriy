@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { EditorForm } from "@/components/admin/editor-form";
 import { SourcePicker } from "@/components/admin/source-picker";
+import { requireEditorAccess } from "@/lib/auth/rbac";
 import { adminSources } from "@/lib/content/admin";
 
 export const metadata: Metadata = {
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
   description: "Create a new scripture book draft.",
 };
 
-export default function NewBookPage() {
+export default async function NewBookPage() {
+  await requireEditorAccess();
+
   return (
     <>
       <AdminHeader

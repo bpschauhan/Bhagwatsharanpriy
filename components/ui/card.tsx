@@ -5,7 +5,7 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "surface-calm rounded-lg text-card-foreground transition-all duration-500 ease-premium hover:border-primary/25 hover:shadow-glow",
+        "surface-calm rounded-lg text-card-foreground transition-colors duration-300 ease-premium hover:border-primary/25",
         className,
       )}
       {...props}

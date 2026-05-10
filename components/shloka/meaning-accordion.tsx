@@ -31,7 +31,7 @@ export function MeaningAccordion({ layers }: MeaningAccordionProps) {
           <div key={layer.type} className="px-5 py-4 sm:px-6">
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-4 text-left"
+              className="focus-ring-calm flex w-full items-center justify-between gap-4 rounded-md text-left"
               onClick={() => setOpenType(isOpen ? "SIMPLE" : layer.type)}
               aria-expanded={isOpen}
             >
@@ -52,10 +52,10 @@ export function MeaningAccordion({ layers }: MeaningAccordionProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.24, ease: "easeOut" }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   className="overflow-hidden"
                 >
-                  <p className="pt-4 leading-8 text-muted-foreground">{layer.body}</p>
+                  <p className="reading-copy pt-4 text-foreground/78">{layer.body}</p>
                 </motion.div>
               ) : null}
             </AnimatePresence>

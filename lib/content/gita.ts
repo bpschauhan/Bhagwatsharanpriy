@@ -391,6 +391,44 @@ export function getVerseByNumber(bookSlug: string, chapterNumber: number, verseN
   return chapter?.verses.find((verse) => verse.number === verseNumber);
 }
 
+export function getVersePosition(bookSlug: string, chapterNumber: number, verseNumber: number) {
+  const book = getBookBySlug(bookSlug);
+  const chapter = getChapterByNumber(bookSlug, chapterNumber);
+
+  if (!book || !chapter) {
+    return undefined;
+  }
+
+  const chapterIndex = book.chapters.findIndex((item) => item.number === chapterNumber);
+  const verseIndex = chapter.verses.findIndex((item) => item.number === verseNumber);
+
+  if (chapterIndex < 0 || verseIndex < 0) {
+    return undefined;
+  }
+
+  const flatVerses = book.chapters.flatMap((item) =>
+    item.verses.map((verse) => ({
+      chapter: item,
+      verse,
+      href: `/books/${book.slug}/chapters/${item.number}/verses/${verse.number}`,
+    })),
+  );
+  const flatIndex = flatVerses.findIndex(
+    (item) => item.chapter.number === chapterNumber && item.verse.number === verseNumber,
+  );
+
+  return {
+    chapterIndex,
+    verseIndex,
+    chapterVerseCount: chapter.verses.length,
+    chapterProgress: ((verseIndex + 1) / chapter.verses.length) * 100,
+    totalVerseCount: flatVerses.length,
+    totalProgress: ((flatIndex + 1) / flatVerses.length) * 100,
+    previous: flatVerses[flatIndex - 1],
+    next: flatVerses[flatIndex + 1],
+  };
+}
+
 export function getConceptsForVerse(book: BookContent, verse: VerseContent) {
   return verse.conceptSlugs
     .map((slug) => book.concepts.find((concept) => concept.slug === slug))

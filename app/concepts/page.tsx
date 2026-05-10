@@ -8,7 +8,7 @@ import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { conceptProfiles } from "@/lib/content/knowledge-graph";
+import { getConceptProfiles } from "@/lib/queries/concepts";
 
 export const metadata: Metadata = {
   title: "Concepts | Bhagwatsharanpriy",
@@ -20,7 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ConceptsPage() {
+export default async function ConceptsPage() {
+  const conceptProfiles = await getConceptProfiles();
+
   return (
     <>
       <Section className="pt-24 sm:pt-28">

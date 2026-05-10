@@ -9,11 +9,11 @@ type SearchGroupProps = {
 export function SearchGroup({ group, query }: SearchGroupProps) {
   return (
     <section aria-labelledby={`search-group-${group.type}`} className="space-y-4">
-      <div>
+      <div className="border-b border-border pb-3">
         <h2 id={`search-group-${group.type}`} className="font-serif text-2xl font-semibold">
           {group.label}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">{group.results.length} carefully ranked results</p>
+        <p className="mt-1 text-sm text-foreground/70">{group.results.length} carefully ranked results</p>
       </div>
       <div className="grid gap-4">
         {group.results.map((result) => (

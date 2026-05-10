@@ -62,9 +62,9 @@ const config: Config = {
       },
       backgroundImage: {
         "wisdom-radial":
-          "radial-gradient(circle at 30% 20%, rgba(244, 180, 0, 0.18), transparent 34%), radial-gradient(circle at 78% 8%, rgba(230, 57, 70, 0.09), transparent 24%)",
+          "radial-gradient(circle at 30% 20%, rgba(244, 180, 0, 0.1), transparent 34%), radial-gradient(circle at 78% 8%, rgba(230, 57, 70, 0.045), transparent 24%)",
         "wisdom-layered":
-          "radial-gradient(circle at 22% 12%, rgba(244, 180, 0, 0.13), transparent 28rem), radial-gradient(circle at 82% 22%, rgba(230, 57, 70, 0.055), transparent 24rem), linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.62))",
+          "radial-gradient(circle at 22% 12%, rgba(244, 180, 0, 0.07), transparent 28rem), radial-gradient(circle at 82% 22%, rgba(230, 57, 70, 0.03), transparent 24rem), linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.76))",
       },
     },
   },

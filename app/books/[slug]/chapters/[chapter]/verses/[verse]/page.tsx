@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
+import { ChevronRight } from "lucide-react";
+import { ReadingExperienceFrame } from "@/components/books/reading-experience";
+import { ChapterVerseSidebar, MobileVerseDock, VerseNavigation } from "@/components/books/scripture-navigation";
+import { SaveReadingPosition } from "@/components/books/reading-state";
 import { CommentaryTabs } from "@/components/shloka/commentary-tabs";
 import { ConceptPill } from "@/components/shloka/concept-pill";
 import { MeaningAccordion } from "@/components/shloka/meaning-accordion";
@@ -12,19 +16,22 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  books,
-  getBookBySlug,
-  getChapterByNumber,
-  getConceptsForVerse,
-  getSourcesForVerse,
-  getVerseByNumber,
-} from "@/lib/content/gita";
+  getBook,
+  getBooks,
+  getChapter,
+  getConceptsForVerseContent,
+  getSourcesForVerseContent,
+  getVerse,
+  getVersePositionFromContent,
+} from "@/lib/queries/books";
+import { verseRouteParamsSchema } from "@/lib/validation/content";
 
 type VersePageProps = {
   params: Promise<{ slug: string; chapter: string; verse: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const books = await getBooks();
   return books.flatMap((book) =>
     book.chapters.flatMap((chapter) =>
       chapter.verses.map((verse) => ({
@@ -38,9 +45,15 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: VersePageProps): Promise<Metadata> {
   const { slug, chapter, verse } = await params;
-  const book = getBookBySlug(slug);
-  const currentChapter = getChapterByNumber(slug, Number(chapter));
-  const currentVerse = getVerseByNumber(slug, Number(chapter), Number(verse));
+  const parsed = verseRouteParamsSchema.safeParse({ slug, chapter, verse });
+
+  if (!parsed.success) {
+    return {};
+  }
+
+  const book = await getBook(parsed.data.slug);
+  const currentChapter = await getChapter(parsed.data.slug, parsed.data.chapter);
+  const currentVerse = await getVerse(parsed.data.slug, parsed.data.chapter, parsed.data.verse);
 
   if (!book || !currentChapter || !currentVerse) {
     return {};
@@ -59,53 +72,79 @@ export async function generateMetadata({ params }: VersePageProps): Promise<Meta
 
 export default async function VersePage({ params }: VersePageProps) {
   const { slug, chapter, verse } = await params;
-  const book = getBookBySlug(slug);
-  const currentChapter = getChapterByNumber(slug, Number(chapter));
-  const currentVerse = getVerseByNumber(slug, Number(chapter), Number(verse));
+  const parsed = verseRouteParamsSchema.safeParse({ slug, chapter, verse });
+
+  if (!parsed.success) {
+    notFound();
+  }
+
+  const book = await getBook(parsed.data.slug);
+  const currentChapter = await getChapter(parsed.data.slug, parsed.data.chapter);
+  const currentVerse = await getVerse(parsed.data.slug, parsed.data.chapter, parsed.data.verse);
 
   if (!book || !currentChapter || !currentVerse) {
     notFound();
   }
 
-  const concepts = getConceptsForVerse(book, currentVerse);
-  const sources = getSourcesForVerse(book, currentVerse);
+  const concepts = await getConceptsForVerseContent(book.slug, currentChapter.number, currentVerse.number);
+  const sources = await getSourcesForVerseContent(book.slug, currentChapter.number, currentVerse.number);
   const reference = `${book.title} ${currentChapter.number}.${currentVerse.number}`;
+  const position = await getVersePositionFromContent(book.slug, currentChapter.number, currentVerse.number);
+  const chapterHref = `/books/${book.slug}/chapters/${currentChapter.number}`;
+  const chapterProgress = position?.chapterProgress ?? 0;
+  const verseIndex = position?.verseIndex ?? 0;
 
   return (
     <>
-      <div className="sticky top-0 z-40 h-1 bg-muted/60">
-        <div className="h-full w-2/5 bg-primary" />
+      <SaveReadingPosition
+        bookTitle={book.title}
+        bookSlug={book.slug}
+        chapterNumber={currentChapter.number}
+        chapterTitle={currentChapter.title}
+        verseNumber={currentVerse.number}
+        href={`/books/${book.slug}/chapters/${currentChapter.number}/verses/${currentVerse.number}`}
+        label={reference}
+        progress={chapterProgress}
+      />
+      <div className="sticky top-0 z-40 h-1 bg-muted">
+        <div className="h-full bg-primary" style={{ width: `${chapterProgress}%` }} />
       </div>
 
-      <Section className="section-lit pt-24 sm:pt-28">
+      <Section className="pt-24 sm:pt-28">
         <Container className="max-w-4xl">
+          <nav className="mb-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-foreground">Home</Link>
+            <ChevronRight className="size-3" aria-hidden="true" />
+            <Link href={`/books/${book.slug}` as Route} className="hover:text-foreground">{book.title}</Link>
+            <ChevronRight className="size-3" aria-hidden="true" />
+            <Link href={chapterHref as Route} className="hover:text-foreground">Chapter {currentChapter.number}</Link>
+            <ChevronRight className="size-3" aria-hidden="true" />
+            <span className="font-medium text-foreground">Verse {currentVerse.number}</span>
+          </nav>
           <div className="mb-7 flex flex-wrap gap-2">
             <Badge>{book.title}</Badge>
             <Badge variant="outline">Chapter {currentChapter.number}</Badge>
             <Badge variant="outline">Verse {currentVerse.number}</Badge>
           </div>
           <h1 className="font-serif text-4xl font-semibold leading-tight sm:text-5xl">{reference}</h1>
-          <p className="mt-5 leading-8 text-muted-foreground">
-            Scripture first, interpretation second. Move from simple meaning into deeper layers at your own pace.
+          <p className="mt-5 leading-8 text-foreground/78">
+            Chapter {currentChapter.number} / Verse {verseIndex + 1} of {currentChapter.verses.length}. Read the verse, then move through meaning and commentary without losing your place.
           </p>
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-muted" aria-label={`Chapter progress ${Math.round(chapterProgress)} percent`}>
+            <div className="h-full rounded-full bg-primary" style={{ width: `${chapterProgress}%` }} />
+          </div>
         </Container>
       </Section>
 
       <Section className="pt-0">
-        <Container>
-          <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,760px)_260px] lg:items-start">
-            <aside className="hidden lg:sticky lg:top-24 lg:block">
-              <nav className="surface-calm rounded-lg p-4 text-sm" aria-label="Verse sections">
-                <p className="mb-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">Reading path</p>
-                {["Verse", "Word meaning", "Layers", "Practice", "Commentary", "Sources"].map((item) => (
-                  <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="block rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                    {item}
-                  </a>
-                ))}
-              </nav>
-            </aside>
-
+        <Container className="pb-16 lg:pb-0">
+          <ReadingExperienceFrame
+            sidebar={
+              <ChapterVerseSidebar bookSlug={book.slug} chapter={currentChapter} currentVerseNumber={currentVerse.number} />
+            }
+          >
             <article className="reading-measure space-y-8">
+              <VerseNavigation previous={position?.previous} next={position?.next} chapterHref={chapterHref} keyboard />
               <section id="verse" className="scroll-mt-24">
                 <VerseDisplay verse={currentVerse} reference={reference} />
               </section>
@@ -115,7 +154,7 @@ export default async function VersePage({ params }: VersePageProps) {
                 <CardTitle>Word-by-word meaning</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="leading-8 text-muted-foreground">{currentVerse.wordByWord}</p>
+                <p className="reading-copy text-foreground/78">{currentVerse.wordByWord}</p>
               </CardContent>
             </Card>
 
@@ -135,7 +174,7 @@ export default async function VersePage({ params }: VersePageProps) {
                   <CardTitle>Practical application</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="leading-8 text-muted-foreground">{currentVerse.practicalApplication}</p>
+                  <p className="reading-copy text-foreground/78">{currentVerse.practicalApplication}</p>
                 </CardContent>
               </Card>
               <Card>
@@ -143,7 +182,7 @@ export default async function VersePage({ params }: VersePageProps) {
                   <CardTitle>Philosophy insight</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="leading-8 text-muted-foreground">{currentVerse.philosophyInsight}</p>
+                  <p className="reading-copy text-foreground/78">{currentVerse.philosophyInsight}</p>
                 </CardContent>
               </Card>
             </div>
@@ -161,7 +200,7 @@ export default async function VersePage({ params }: VersePageProps) {
               </CardContent>
             </Card>
 
-            <section id="commentary" aria-labelledby="commentary" className="scroll-mt-24">
+            <section id="commentary" aria-labelledby="commentary" className="reading-commentary scroll-mt-24">
               <SectionHeader
                 eyebrow="Commentary"
                 title="Study notes and interpretive views"
@@ -178,7 +217,7 @@ export default async function VersePage({ params }: VersePageProps) {
               <CardContent>
                 <ul className="space-y-4">
                   {sources.map((source) => (
-                    <li key={source.slug} className="leading-7 text-muted-foreground">
+                    <li key={source.slug} className="leading-7 text-foreground/72">
                       <span className="font-medium text-foreground">{source.title}</span>
                       <span className="block text-sm">{source.citation}</span>
                       {source.url ? (
@@ -192,12 +231,12 @@ export default async function VersePage({ params }: VersePageProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-wisdom-layered">
+            <Card className="border-primary/25 bg-card">
               <CardHeader>
                 <CardTitle>Parallel teachings</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="leading-8 text-muted-foreground">
+                <p className="reading-copy text-foreground/78">
                   Study this verse beside teachings connected by concept, practice, and philosophical theme.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
@@ -209,35 +248,12 @@ export default async function VersePage({ params }: VersePageProps) {
                 </div>
               </CardContent>
             </Card>
+            <VerseNavigation previous={position?.previous} next={position?.next} chapterHref={chapterHref} className="mb-2" />
             </article>
-
-            <aside className="space-y-4 lg:sticky lg:top-24">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Side annotations</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground">
-                  <p><span className="font-medium text-foreground">Focus mode:</span> scripture remains visually primary; interpretation is staged below it.</p>
-                  <p><span className="font-medium text-foreground">Practice connection:</span> apply the teaching as a small observation before turning it into a conclusion.</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Inline references</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  {sources.slice(0, 3).map((source) => (
-                    <a key={source.slug} href="#sources" className="block rounded-md border border-border bg-background/60 p-3 transition-colors hover:border-primary/45">
-                      <span className="font-medium">{source.title}</span>
-                      <span className="mt-1 block text-muted-foreground">{source.citation}</span>
-                    </a>
-                  ))}
-                </CardContent>
-              </Card>
-            </aside>
-          </div>
+          </ReadingExperienceFrame>
         </Container>
       </Section>
+      <MobileVerseDock previous={position?.previous} next={position?.next} chapterHref={chapterHref} />
     </>
   );
 }

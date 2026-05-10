@@ -113,22 +113,23 @@ export function ExpandableMap({ initialNodeId = "wisdom-root", compact = false }
             </Button>
           </div>
         </div>
+        <div className="border-b border-border bg-background/55 px-4 py-3 text-sm leading-6 text-foreground/72">
+          Select a node to read its immediate intellectual neighborhood. Stronger gold lines indicate closer textual or conceptual dependence.
+        </div>
 
         <div className="relative hidden min-h-[560px] overflow-hidden bg-wisdom-layered md:block xl:min-h-[700px]">
-          <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(hsl(var(--border))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--border))_1px,transparent_1px)] [background-size:72px_72px]" />
-          <div className="pointer-events-none absolute inset-6 hidden rounded-lg border border-border/50 lg:block" />
-          <div className="pointer-events-none absolute left-[8%] top-[7%] h-44 w-80 rounded-full bg-primary/10 blur-3xl" />
-          <div className="pointer-events-none absolute bottom-[8%] right-[8%] h-56 w-72 rounded-full bg-secondary/5 blur-3xl" />
-          <div className="pointer-events-none absolute left-8 top-7 text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="absolute inset-0 opacity-[0.26] [background-image:linear-gradient(hsl(var(--border))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--border))_1px,transparent_1px)] [background-size:72px_72px]" />
+          <div className="pointer-events-none absolute inset-6 hidden rounded-lg border border-border/70 lg:block" />
+          <div className="pointer-events-none absolute left-8 top-7 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Scriptures
           </div>
-          <div className="pointer-events-none absolute bottom-7 left-8 text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="pointer-events-none absolute bottom-7 left-8 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Philosophies
           </div>
-          <div className="pointer-events-none absolute bottom-7 right-8 text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="pointer-events-none absolute bottom-7 right-8 text-xs uppercase tracking-[0.18em] text-muted-foreground">
             Practices
           </div>
-          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs uppercase tracking-[0.18em] text-muted-foreground/40">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs uppercase tracking-[0.18em] text-muted-foreground/75">
             Concepts
           </div>
           <motion.div
@@ -166,7 +167,7 @@ export function ExpandableMap({ initialNodeId = "wisdom-root", compact = false }
           <GraphNavigator nodes={layout.nodes} focusId={focusId} selectedId={selectedNode.id} zoom={zoom} onSelect={selectNode} />
           <div className="pointer-events-none absolute bottom-4 left-4 flex flex-wrap gap-2">
             {Object.entries(clusterCounts).map(([cluster, count]) => (
-              <span key={cluster} className="rounded-full border border-border bg-background/70 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+              <span key={cluster} className="rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground">
                 {cluster}: {count}
               </span>
             ))}
@@ -225,7 +226,7 @@ function GraphNavigator({
   onSelect: (nodeId: string) => void;
 }) {
   return (
-    <div className="absolute right-4 top-4 w-48 rounded-lg border border-border bg-background/74 p-3 shadow-calm backdrop-blur">
+    <div className="absolute right-4 top-4 w-48 rounded-lg border border-border bg-background/95 p-3 shadow-calm">
       <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5 uppercase tracking-[0.16em]">
           <Compass className="size-3.5 text-primary" aria-hidden="true" />

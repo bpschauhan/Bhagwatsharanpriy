@@ -25,7 +25,7 @@ export function CommentaryTabs({ commentaries }: CommentaryTabsProps) {
             type="button"
             role="tab"
             aria-selected={activeIndex === index}
-            className={`shrink-0 rounded-md border px-3 py-2 text-sm transition-colors ${
+            className={`focus-ring-calm shrink-0 rounded-md border px-3 py-2 text-sm transition-colors ${
               activeIndex === index
                 ? "border-primary/40 bg-primary/15 text-foreground"
                 : "border-border bg-background/60 text-muted-foreground hover:text-foreground"
@@ -42,8 +42,8 @@ export function CommentaryTabs({ commentaries }: CommentaryTabsProps) {
           <Badge variant="muted">Interpretation</Badge>
         </div>
         <h3 className="font-serif text-2xl font-semibold">{active.title}</h3>
-        <p className="mt-4 leading-8 text-muted-foreground">{active.body}</p>
-        <p className="mt-5 border-l-2 border-primary/45 pl-4 text-sm leading-7 text-muted-foreground">
+        <p className="reading-copy mt-4 text-foreground/78">{active.body}</p>
+        <p className="mt-5 border-l-2 border-primary/45 pl-4 text-sm leading-7 text-foreground/70">
           {active.interpretationNote}
         </p>
       </div>

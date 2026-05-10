@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ChapterCard } from "@/components/books/chapter-card";
+import { ContinueReadingCard } from "@/components/books/reading-state";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { SectionHeader } from "@/components/layout/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { books, getBookBySlug } from "@/lib/content/gita";
+import { getBook, getBooks } from "@/lib/queries/books";
 
 type BookPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const books = await getBooks();
   return books.map((book) => ({ slug: book.slug }));
 }
 
 export async function generateMetadata({ params }: BookPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const book = getBookBySlug(slug);
+  const book = await getBook(slug);
 
   if (!book) {
     return {};
@@ -37,11 +39,16 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
 
 export default async function BookPage({ params }: BookPageProps) {
   const { slug } = await params;
-  const book = getBookBySlug(slug);
+  const book = await getBook(slug);
 
   if (!book) {
     notFound();
   }
+
+  const firstVerse = book.chapters[0]?.verses[0];
+  const firstVerseHref = firstVerse
+    ? `/books/${book.slug}/chapters/${book.chapters[0].number}/verses/${firstVerse.number}`
+    : undefined;
 
   return (
     <>
@@ -60,6 +67,9 @@ export default async function BookPage({ params }: BookPageProps) {
 
       <Section>
         <Container>
+          <div className="mb-6">
+            <ContinueReadingCard fallbackHref={firstVerseHref} fallbackLabel={`Begin ${book.title}`} />
+          </div>
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <Card>
               <CardHeader>

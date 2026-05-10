@@ -16,7 +16,7 @@ export function VerseRow({ bookSlug, chapterNumber, verse }: VerseRowProps) {
   return (
     <Link
       href={href}
-      className="group block rounded-lg border border-border bg-card p-5 transition-transform duration-300 hover:-translate-y-0.5"
+      className="group block rounded-lg border border-border bg-card p-5 transition-colors duration-300 hover:border-primary/35 hover:bg-background"
     >
       <div className="flex items-start justify-between gap-4">
         <div>

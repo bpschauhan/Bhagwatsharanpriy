@@ -28,13 +28,13 @@ export function GraphEdge({ edge, active, dimmed, proximity = 0, simplified = fa
     <motion.path
       d={path}
       stroke="currentColor"
-      strokeWidth={active ? 0.38 : simplified ? 0.12 : 0.18 + proximity * 0.05}
+      strokeWidth={active ? 0.44 : simplified ? 0.16 : 0.22 + proximity * 0.06}
       strokeLinecap="round"
       fill="none"
       vectorEffect="non-scaling-stroke"
-      className={active ? "text-primary/75 drop-shadow-sm" : proximity > 0 ? "text-primary/35" : "text-border"}
+      className={active ? "text-primary/85" : proximity > 0 ? "text-primary/45" : "text-border"}
       initial={reduceMotion ? false : { pathLength: 0, opacity: 0 }}
-      animate={{ pathLength: 1, opacity: dimmed ? 0.06 : active ? 0.92 : simplified ? 0.14 : 0.22 + proximity * 0.22 }}
+      animate={{ pathLength: 1, opacity: dimmed ? 0.22 : active ? 0.96 : simplified ? 0.28 : 0.34 + proximity * 0.24 }}
       transition={{ duration: reduceMotion ? 0 : 0.62, ease: [0.22, 1, 0.36, 1] }}
       aria-label={edge.label}
     />

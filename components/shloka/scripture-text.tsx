@@ -8,11 +8,13 @@ type ScriptureTextProps = {
 
 export function ScriptureText({ sanskrit, transliteration, className }: ScriptureTextProps) {
   return (
-    <div className={cn("space-y-5", className)}>
-      <p className="whitespace-pre-line font-devanagari text-3xl leading-[1.8] text-foreground sm:text-4xl">
+    <div className={cn("space-y-7", className)}>
+      <p className="scripture-sanskrit whitespace-pre-line font-devanagari text-foreground">
         {sanskrit}
       </p>
-      <p className="whitespace-pre-line text-base italic leading-8 text-muted-foreground">{transliteration}</p>
+      <p className="scripture-transliteration whitespace-pre-line border-t border-border pt-5 text-base italic text-foreground/78">
+        {transliteration}
+      </p>
     </div>
   );
 }

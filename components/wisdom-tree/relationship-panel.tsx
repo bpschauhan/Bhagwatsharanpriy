@@ -52,7 +52,10 @@ export function RelationshipPanel({ node, edges, onSelect }: RelationshipPanelPr
             </Link>
           ) : null}
           <div className="mt-7">
-            <h3 className="font-serif text-lg font-semibold">Relationships</h3>
+            <h3 className="font-serif text-lg font-semibold">Why this connects</h3>
+            <p className="mt-2 text-sm leading-6 text-foreground/70">
+              Connections show textual belonging, philosophical influence, or shared practice language.
+            </p>
             <div className="mt-3 space-y-3">
               {edges.slice(0, 6).map((edge) => {
                 const otherId = edge.source === node.id ? edge.target : edge.source;
@@ -66,14 +69,17 @@ export function RelationshipPanel({ node, edges, onSelect }: RelationshipPanelPr
                   <button
                     key={edge.id}
                     type="button"
-                    className="focus-ring-calm block w-full rounded-lg border border-border bg-background/60 p-3 text-left transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-glow"
+                    className="focus-ring-calm block w-full rounded-lg border border-border bg-background/70 p-3 text-left transition-colors duration-300 ease-premium hover:border-primary/45 hover:bg-muted"
                     onClick={() => onSelect(other.id)}
                   >
                     <span className="flex items-center justify-between gap-3">
                       <span className="font-medium">{other.title}</span>
                       <Badge variant="muted">{edge.relationshipType.replaceAll("_", " ").toLowerCase()}</Badge>
                     </span>
-                    <span className="mt-2 line-clamp-3 block text-sm leading-6 text-muted-foreground">{edge.summary}</span>
+                    <span className="mt-2 line-clamp-3 block text-sm leading-6 text-foreground/72">{edge.summary}</span>
+                    <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-muted" aria-label={`Relationship strength ${edge.weight} of 5`}>
+                      <span className="block h-full rounded-full bg-primary" style={{ width: `${(edge.weight / 5) * 100}%` }} />
+                    </span>
                   </button>
                 );
               })}

@@ -1,10 +1,30 @@
 import { PrismaClient } from "@prisma/client";
+import { hash } from "bcryptjs";
 import { bhagavadGita } from "../lib/content/gita";
 import { conceptProfiles, knowledgeEdges, knowledgeNodes } from "../lib/content/knowledge-graph";
+import { env } from "../lib/env";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  if (env.INITIAL_ADMIN_EMAIL && env.INITIAL_ADMIN_PASSWORD) {
+    await prisma.user.upsert({
+      where: { email: env.INITIAL_ADMIN_EMAIL.toLowerCase() },
+      update: {
+        name: env.INITIAL_ADMIN_NAME ?? "Bhagwatsharanpriy Admin",
+        role: "ADMIN",
+        active: true,
+      },
+      create: {
+        email: env.INITIAL_ADMIN_EMAIL.toLowerCase(),
+        name: env.INITIAL_ADMIN_NAME ?? "Bhagwatsharanpriy Admin",
+        passwordHash: await hash(env.INITIAL_ADMIN_PASSWORD, 12),
+        role: "ADMIN",
+        active: true,
+      },
+    });
+  }
+
   await prisma.knowledgeEdge.deleteMany();
   await prisma.knowledgeNode.deleteMany();
   await prisma.relatedConcept.deleteMany();

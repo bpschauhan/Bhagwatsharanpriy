@@ -14,3 +14,8 @@ export function tokenizeSearchText(value: string) {
     .map((token) => token.trim())
     .filter(Boolean);
 }
+
+export async function searchWisdom(query: string) {
+  const { getSearchAdapter } = await import("./adapters");
+  return getSearchAdapter().search(query);
+}

@@ -8,7 +8,7 @@ export type MeaningLayerType =
   | "PHILOSOPHICAL"
   | "SCIENTIFIC_PARALLEL";
 
-export type SourceType = "SCRIPTURE" | "COMMENTARY" | "TRANSLATION" | "REFERENCE";
+export type SourceType = "SCRIPTURE" | "COMMENTARY" | "TRANSLATION" | "REFERENCE" | "SCHOLARLY" | "HISTORICAL" | "MODERN_ANALYSIS";
 
 export type ConceptContent = {
   slug: string;
