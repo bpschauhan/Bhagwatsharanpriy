@@ -1,0 +1,162 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import type { Route } from "next";
+import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
+import { ConceptGraph } from "@/components/wisdom-tree/concept-graph";
+import { Container } from "@/components/layout/container";
+import { Section } from "@/components/layout/section";
+import { SectionHeader } from "@/components/layout/section-header";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { conceptProfiles, getConceptProfile } from "@/lib/content/knowledge-graph";
+
+type ConceptPageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export function generateStaticParams() {
+  return conceptProfiles.map((concept) => ({ slug: concept.slug }));
+}
+
+export async function generateMetadata({ params }: ConceptPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const concept = getConceptProfile(slug);
+
+  if (!concept) {
+    return {};
+  }
+
+  return {
+    title: `${concept.title} | Bhagwatsharanpriy Concepts`,
+    description: concept.summary,
+    openGraph: {
+      title: `${concept.title} | Bhagwatsharanpriy`,
+      description: concept.summary,
+      type: "article",
+    },
+  };
+}
+
+export default async function ConceptPage({ params }: ConceptPageProps) {
+  const { slug } = await params;
+  const concept = getConceptProfile(slug);
+
+  if (!concept) {
+    notFound();
+  }
+
+  return (
+    <>
+      <Section className="bg-wisdom-radial pt-24 sm:pt-28">
+        <Container>
+          <div className="max-w-4xl">
+            <Badge>{concept.category}</Badge>
+            <h1 className="mt-5 font-serif text-5xl font-semibold leading-tight sm:text-6xl">{concept.title}</h1>
+            <p className="mt-6 max-w-3xl text-xl leading-9 text-muted-foreground">{concept.summary}</p>
+          </div>
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>Concept explanation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="leading-8 text-muted-foreground">{concept.explanation}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Scientific and psychological parallels</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {concept.parallels.map((parallel) => (
+                    <div key={parallel.title}>
+                      <p className="font-medium">{parallel.title}</p>
+                      <p className="mt-1 text-sm leading-7 text-muted-foreground">{parallel.note}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </Container>
+      </Section>
+
+      <Section className="bg-card/45">
+        <Container>
+          <SectionHeader
+            eyebrow="Relationship visualization"
+            title={`${concept.title} in the wisdom map`}
+            description="The graph keeps the selected concept in focus and shows nearby scriptures, schools, and neighboring concepts."
+          />
+          <ConceptGraph focusNodeId={concept.graphFocusNodeId} />
+        </Container>
+      </Section>
+
+      <Section>
+        <Container>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <RelationshipList title="Related verses" items={concept.relatedVerses} empty="Verse links will expand as the scripture library grows." />
+            <RelationshipList title="Related books" items={concept.relatedBooks} empty="Book links will expand as the library grows." />
+            <Card>
+              <CardHeader>
+                <CardTitle>Related philosophies</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {concept.relatedPhilosophies.map((item) => (
+                  <div key={item.title}>
+                    <p className="font-medium">{item.title}</p>
+                    <p className="mt-1 text-sm leading-7 text-muted-foreground">{item.note}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </Container>
+      </Section>
+    </>
+  );
+}
+
+function RelationshipList({
+  title,
+  items,
+  empty,
+}: {
+  title: string;
+  items: Array<{ title?: string; label?: string; href: string; note: string }>;
+  empty: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {items.length > 0 ? (
+          items.map((item) => (
+            <Link
+              key={`${item.href}-${item.title ?? item.label}`}
+              href={item.href as Route}
+              className="group block rounded-lg border border-border bg-background/60 p-4 transition-colors hover:border-primary/45"
+            >
+              <span className="flex items-center justify-between gap-3 font-medium">
+                {item.title ?? item.label}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </span>
+              <span className="mt-2 block text-sm leading-7 text-muted-foreground">{item.note}</span>
+            </Link>
+          ))
+        ) : (
+          <p className="text-sm leading-7 text-muted-foreground">{empty}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

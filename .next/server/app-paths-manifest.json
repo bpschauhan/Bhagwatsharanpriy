@@ -1,0 +1,8 @@
+{
+  "/page": "app/page.js",
+  "/books/page": "app/books/page.js",
+  "/books/[slug]/page": "app/books/[slug]/page.js",
+  "/books/[slug]/chapters/[chapter]/page": "app/books/[slug]/chapters/[chapter]/page.js",
+  "/books/[slug]/chapters/[chapter]/verses/[verse]/page": "app/books/[slug]/chapters/[chapter]/verses/[verse]/page.js",
+  "/concepts/page": "app/concepts/page.js"
+}
