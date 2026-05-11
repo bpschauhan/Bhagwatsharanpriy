@@ -54,7 +54,7 @@ export function RelationshipPanel({ node, edges, onSelect }: RelationshipPanelPr
           <div className="mt-7">
             <h3 className="font-serif text-lg font-semibold">Why this connects</h3>
             <p className="mt-2 text-sm leading-6 text-foreground/70">
-              Connections show textual belonging, philosophical influence, or shared practice language.
+              Connections are kept only when they can explain textual belonging, philosophical influence, opposition, or shared practice language.
             </p>
             <div className="mt-3 space-y-3">
               {edges.slice(0, 6).map((edge) => {
@@ -76,7 +76,14 @@ export function RelationshipPanel({ node, edges, onSelect }: RelationshipPanelPr
                       <span className="font-medium">{other.title}</span>
                       <Badge variant="muted">{edge.relationshipType.replaceAll("_", " ").toLowerCase()}</Badge>
                     </span>
-                    <span className="mt-2 line-clamp-3 block text-sm leading-6 text-foreground/72">{edge.summary}</span>
+                    <span className="mt-2 line-clamp-3 block text-sm leading-6 text-foreground/72">
+                      {edge.explanation ?? edge.summary}
+                    </span>
+                    {edge.school || edge.tradition ? (
+                      <span className="mt-2 block text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                        {[edge.school, edge.tradition].filter(Boolean).join(" / ")}
+                      </span>
+                    ) : null}
                     <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-muted" aria-label={`Relationship strength ${edge.weight} of 5`}>
                       <span className="block h-full rounded-full bg-primary" style={{ width: `${(edge.weight / 5) * 100}%` }} />
                     </span>

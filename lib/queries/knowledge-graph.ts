@@ -68,6 +68,7 @@ export const getKnowledgeGraph = cache(async (): Promise<{ nodes: KnowledgeNode[
         relationshipType: edge.relationshipType,
         label: edge.label,
         summary: edge.summary,
+        explanation: edge.explanation ?? undefined,
         bidirectional: edge.bidirectional,
         weight: edge.weight,
       } satisfies KnowledgeEdge;

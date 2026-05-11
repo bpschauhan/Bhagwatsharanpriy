@@ -14,7 +14,13 @@ export type KnowledgeRelationshipType =
   | "RELATED_TO"
   | "EXPLAINS"
   | "COMMENTARY_ON"
-  | "DERIVED_FROM";
+  | "DERIVED_FROM"
+  | "EXPANDS_UPON"
+  | "REFERENCES"
+  | "PHILOSOPHICALLY_SIMILAR"
+  | "PHILOSOPHICALLY_OPPOSED"
+  | "PRACTICAL_PARALLEL"
+  | "CONTEXTUALIZES";
 
 export type KnowledgeNode = {
   id: string;
@@ -37,8 +43,54 @@ export type KnowledgeEdge = {
   relationshipType: KnowledgeRelationshipType;
   label: string;
   summary: string;
+  explanation?: string;
+  tradition?: string;
+  school?: string;
   bidirectional?: boolean;
   weight: number;
+};
+
+export type ConceptDefinitionProfile = {
+  title: string;
+  definition: string;
+  context: string;
+  tradition?: string;
+  school?: string;
+  sourceLabel?: string;
+};
+
+export type ConceptTraditionViewProfile = {
+  title: string;
+  positionSummary: string;
+  nuance: string;
+  tradition?: string;
+  school?: string;
+  differsFrom?: string;
+};
+
+export type ConceptMisconceptionProfile = {
+  title: string;
+  correction: string;
+  whyItMatters: string;
+};
+
+export type ConceptPracticeProfile = {
+  title: string;
+  description: string;
+  caution?: string;
+};
+
+export type ConceptEvolutionProfile = {
+  period: string;
+  description: string;
+};
+
+export type ConceptSemanticNeighborProfile = {
+  label: string;
+  relationshipType: KnowledgeRelationshipType;
+  explanation: string;
+  href?: string;
+  caution?: string;
 };
 
 export type ConceptProfile = {
@@ -47,6 +99,12 @@ export type ConceptProfile = {
   category: string;
   summary: string;
   explanation: string;
+  definitions?: ConceptDefinitionProfile[];
+  traditionViews?: ConceptTraditionViewProfile[];
+  misconceptions?: ConceptMisconceptionProfile[];
+  practices?: ConceptPracticeProfile[];
+  historicalEvolution?: ConceptEvolutionProfile[];
+  semanticNeighbors?: ConceptSemanticNeighborProfile[];
   relatedConceptSlugs: string[];
   relatedBooks: Array<{
     title: string;

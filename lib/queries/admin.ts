@@ -15,11 +15,14 @@ export const getAdminDashboard = cache(async () => {
   }
 
   try {
-    const [drafts, inReview, verified, disputed, reviews, audits] = await Promise.all([
+    const [drafts, inReview, verified, disputed, commentaryReview, citationReview, relationshipReview, reviews, audits] = await Promise.all([
       prisma.verse.count({ where: { verificationStatus: "DRAFT" } }),
       prisma.verse.count({ where: { verificationStatus: "REVIEW" } }),
       prisma.verse.count({ where: { verificationStatus: "VERIFIED" } }),
       prisma.verse.count({ where: { verificationStatus: "DISPUTED" } }),
+      prisma.commentary.count({ where: { verificationStatus: "REVIEW" } }),
+      prisma.citation.count({ where: { verificationStatus: "REVIEW" } }),
+      prisma.scriptureRelationship.count({ where: { verificationStatus: "REVIEW" } }),
       prisma.contentReview.findMany({
         orderBy: { updatedAt: "desc" },
         take: 8,
@@ -36,7 +39,12 @@ export const getAdminDashboard = cache(async () => {
         { label: "Draft verses", value: String(drafts), detail: "Verse records not yet submitted for review.", status: "DRAFT" as const },
         { label: "In review", value: String(inReview), detail: "Verse records awaiting verification decisions.", status: "REVIEW" as const },
         { label: "Verified", value: String(verified), detail: "Verse records approved with reviewer confidence.", status: "VERIFIED" as const },
-        { label: "Disputed", value: String(disputed), detail: "Verse records requiring clarification or source correction.", status: "DISPUTED" as const },
+        {
+          label: "Wisdom review",
+          value: String(commentaryReview + citationReview + relationshipReview),
+          detail: `${disputed} disputed verse records; commentaries, citations, and cross-scripture relationships awaiting verification.`,
+          status: "REVIEW" as const,
+        },
       ],
       reviewQueue:
         reviews.length > 0

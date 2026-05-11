@@ -15,6 +15,27 @@ export const getConceptProfiles = cache(async (): Promise<ConceptProfile[]> => {
     const concepts = await prisma.concept.findMany({
       orderBy: { name: "asc" },
       include: {
+        definitions: {
+          orderBy: { order: "asc" },
+          include: { tradition: true, school: true },
+        },
+        traditionViews: {
+          orderBy: { order: "asc" },
+          include: { tradition: true, school: true },
+        },
+        misconceptions: {
+          orderBy: { order: "asc" },
+        },
+        practices: {
+          orderBy: { order: "asc" },
+        },
+        evolutionNotes: {
+          orderBy: { order: "asc" },
+        },
+        semanticNeighbors: {
+          orderBy: { weight: "desc" },
+          include: { relatedConcept: true },
+        },
         relatedFrom: {
           include: { toConcept: true },
           orderBy: { weight: "desc" },
@@ -47,6 +68,61 @@ export const getConceptProfiles = cache(async (): Promise<ConceptProfile[]> => {
         category: concept.category,
         summary: concept.description,
         explanation: fallback?.explanation ?? concept.description,
+        definitions:
+          concept.definitions.length > 0
+            ? concept.definitions.map((definition) => ({
+                title: definition.title,
+                definition: definition.definition,
+                context: definition.context,
+                tradition: definition.tradition?.name,
+                school: definition.school?.name,
+                sourceLabel: definition.sourceLabel ?? undefined,
+              }))
+            : fallback?.definitions,
+        traditionViews:
+          concept.traditionViews.length > 0
+            ? concept.traditionViews.map((view) => ({
+                title: view.title,
+                positionSummary: view.positionSummary,
+                nuance: view.nuance,
+                tradition: view.tradition?.name,
+                school: view.school?.name,
+                differsFrom: view.differsFrom ?? undefined,
+              }))
+            : fallback?.traditionViews,
+        misconceptions:
+          concept.misconceptions.length > 0
+            ? concept.misconceptions.map((item) => ({
+                title: item.title,
+                correction: item.correction,
+                whyItMatters: item.whyItMatters,
+              }))
+            : fallback?.misconceptions,
+        practices:
+          concept.practices.length > 0
+            ? concept.practices.map((item) => ({
+                title: item.title,
+                description: item.description,
+                caution: item.caution ?? undefined,
+              }))
+            : fallback?.practices,
+        historicalEvolution:
+          concept.evolutionNotes.length > 0
+            ? concept.evolutionNotes.map((item) => ({
+                period: item.period,
+                description: item.description,
+              }))
+            : fallback?.historicalEvolution,
+        semanticNeighbors:
+          concept.semanticNeighbors.length > 0
+            ? concept.semanticNeighbors.map((neighbor) => ({
+                label: neighbor.relatedConcept?.name ?? neighbor.label,
+                relationshipType: neighbor.relationshipType,
+                explanation: neighbor.explanation,
+                href: neighbor.relatedConcept ? `/concepts/${neighbor.relatedConcept.slug}` : undefined,
+                caution: neighbor.caution ?? undefined,
+              }))
+            : fallback?.semanticNeighbors,
         relatedConceptSlugs: concept.relatedFrom.map((relation) => relation.toConcept.slug),
         relatedBooks: fallback?.relatedBooks ?? [],
         relatedVerses: concept.verses.map(({ verse }) => ({

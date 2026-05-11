@@ -21,6 +21,18 @@ const reviewableModels = {
   KNOWLEDGE_NODE: "knowledgeNode",
   KNOWLEDGE_EDGE: "knowledgeEdge",
   RELATED_CONCEPT: "relatedConcept",
+  COMMENTARY_LAYER: "commentaryLayer",
+  CITATION: "citation",
+  CANONICAL_REFERENCE: "canonicalReference",
+  SCRIPTURE_RELATIONSHIP: "scriptureRelationship",
+  CONCEPT_DEFINITION: "conceptDefinition",
+  CONCEPT_TRADITION_VIEW: "conceptTraditionView",
+  CONCEPT_MISCONCEPTION: "conceptMisconception",
+  CONCEPT_PRACTICE: "conceptPractice",
+  CONCEPT_EVOLUTION: "conceptEvolution",
+  CONCEPT_SEMANTIC_NEIGHBOR: "conceptSemanticNeighbor",
+  LEARNING_PATH: "learningPath",
+  LEARNING_PATH_STEP: "learningPathStep",
 } as const satisfies Record<ContentEntityType, string>;
 
 export async function recordReviewDecision(_state: ReviewActionState, formData: FormData): Promise<ReviewActionState> {

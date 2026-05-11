@@ -10,6 +10,25 @@ export type MeaningLayerType =
 
 export type SourceType = "SCRIPTURE" | "COMMENTARY" | "TRANSLATION" | "REFERENCE" | "SCHOLARLY" | "HISTORICAL" | "MODERN_ANALYSIS";
 
+export type CommentaryLayerType =
+  | "TEXTUAL"
+  | "PHILOLOGICAL"
+  | "PHILOSOPHICAL"
+  | "DEVOTIONAL"
+  | "PRACTICAL"
+  | "HISTORICAL"
+  | "COMPARATIVE";
+
+export type ScriptureRelationshipType =
+  | "EXPANDS_UPON"
+  | "REFERENCES"
+  | "PHILOSOPHICALLY_SIMILAR"
+  | "PHILOSOPHICALLY_OPPOSED"
+  | "DERIVED_FROM"
+  | "COMMENTARY_ON"
+  | "PRACTICAL_PARALLEL"
+  | "CONTEXTUALIZES";
+
 export type ConceptContent = {
   slug: string;
   name: string;
@@ -26,10 +45,21 @@ export type MeaningLayerContent = {
 export type CommentaryContent = {
   author: string;
   tradition: string;
+  school?: string;
   title: string;
   body: string;
   interpretationNote: string;
   sourceSlug?: string;
+  layerType?: CommentaryLayerType;
+  language?: string;
+  historicalPeriod?: string;
+  sourceLocator?: string;
+  attributionNote?: string;
+  layers?: Array<{
+    type: CommentaryLayerType;
+    title: string;
+    body: string;
+  }>;
 };
 
 export type SourceContent = {
@@ -41,6 +71,24 @@ export type SourceContent = {
   author?: string;
   translator?: string;
   publisher?: string;
+  language?: string;
+  edition?: string;
+  historicalDate?: string;
+  provenanceNote?: string;
+};
+
+export type VerseRelationshipContent = {
+  targetLabel: string;
+  targetTextTitle: string;
+  targetLocator?: string;
+  relationshipType: ScriptureRelationshipType;
+  label: string;
+  explanation: string;
+  philosophicalContext?: string;
+  tradition?: string;
+  school?: string;
+  confidenceLevel?: number;
+  sourceSlug?: string;
 };
 
 export type VerseContent = {
@@ -54,6 +102,7 @@ export type VerseContent = {
   meaningLayers: MeaningLayerContent[];
   conceptSlugs: string[];
   commentaries: CommentaryContent[];
+  relationships?: VerseRelationshipContent[];
   sourceSlugs: string[];
 };
 

@@ -6,6 +6,7 @@ import {
   getNeighborNodeIds,
   knowledgeNodes,
 } from "@/lib/content/knowledge-graph";
+import { learningPaths } from "@/lib/content/learning-paths";
 import { normalizeSearchText, tokenizeSearchText } from "@/lib/search";
 import type { SearchDocument, SearchGroup, SearchResponse, SearchResult, SearchResultType } from "@/types/search";
 
@@ -16,9 +17,10 @@ const groupLabels: Record<SearchResultType, string> = {
   chapter: "Chapters",
   philosophy: "Philosophies",
   related: "Related Wisdom",
+  learning_path: "Learning Paths",
 };
 
-const groupOrder: SearchResultType[] = ["verse", "concept", "book", "chapter", "philosophy", "related"];
+const groupOrder: SearchResultType[] = ["verse", "concept", "book", "chapter", "learning_path", "philosophy", "related"];
 
 export const searchDocuments: SearchDocument[] = buildSearchDocuments();
 
@@ -108,7 +110,20 @@ function buildSearchDocuments(): SearchDocument[] {
               commentary.title,
               commentary.author,
               commentary.tradition,
+              commentary.school ?? "",
+              commentary.layerType ?? "",
+              commentary.historicalPeriod ?? "",
               commentary.body,
+              ...(commentary.layers ?? []).flatMap((layer) => [layer.title, layer.type, layer.body]),
+            ]),
+            ...(verse.relationships ?? []).flatMap((relationship) => [
+              relationship.targetLabel,
+              relationship.targetTextTitle,
+              relationship.relationshipType,
+              relationship.label,
+              relationship.explanation,
+              relationship.philosophicalContext ?? "",
+              relationship.school ?? "",
             ]),
           ].join(" "),
           href: `/books/${book.slug}/chapters/${chapter.number}/verses/${verse.number}`,
@@ -127,7 +142,17 @@ function buildSearchDocuments(): SearchDocument[] {
       type: "concept",
       title: concept.title,
       subtitle: concept.category,
-      body: `${concept.summary} ${concept.explanation} ${concept.parallels.map((parallel) => parallel.note).join(" ")}`,
+      body: [
+        concept.summary,
+        concept.explanation,
+        ...(concept.definitions ?? []).flatMap((item) => [item.title, item.definition, item.context, item.school ?? ""]),
+        ...(concept.traditionViews ?? []).flatMap((item) => [item.title, item.positionSummary, item.nuance, item.school ?? ""]),
+        ...(concept.misconceptions ?? []).flatMap((item) => [item.title, item.correction, item.whyItMatters]),
+        ...(concept.practices ?? []).flatMap((item) => [item.title, item.description]),
+        ...(concept.historicalEvolution ?? []).flatMap((item) => [item.period, item.description]),
+        ...(concept.semanticNeighbors ?? []).flatMap((item) => [item.label, item.relationshipType, item.explanation]),
+        ...concept.parallels.map((parallel) => parallel.note),
+      ].join(" "),
       href: `/concepts/${concept.slug}`,
       keywords: [concept.category, ...concept.relatedConceptSlugs],
       conceptSlugs: [concept.slug, ...concept.relatedConceptSlugs],
@@ -155,6 +180,34 @@ function buildSearchDocuments(): SearchDocument[] {
       conceptSlugs: node.nodeType === "CONCEPT" ? [node.slug] : [],
       nodeId: node.id,
       boost: isPhilosophy ? 12 : 8,
+    });
+  }
+
+  for (const path of learningPaths) {
+    documents.push({
+      id: `learning-path:${path.slug}`,
+      type: "learning_path",
+      title: path.title,
+      subtitle: path.kind.replaceAll("_", " ").toLowerCase(),
+      body: [
+        path.summary,
+        path.guidanceNote ?? "",
+        path.tradition ?? "",
+        path.school ?? "",
+        ...path.steps.flatMap((step) => [
+          step.title,
+          step.summary,
+          step.kind,
+          step.contemplationPrompt ?? "",
+          step.practiceNote ?? "",
+          step.verseLabel ?? "",
+          step.conceptSlug ?? "",
+        ]),
+      ].join(" "),
+      href: `/learn/${path.slug}`,
+      keywords: [path.kind, path.difficulty, path.tradition ?? "", path.school ?? ""],
+      conceptSlugs: path.steps.flatMap((step) => (step.conceptSlug ? [step.conceptSlug] : [])),
+      boost: 16,
     });
   }
 

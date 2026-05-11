@@ -396,6 +396,85 @@ export const conceptProfiles: ConceptProfile[] = [
     summary: "Karma means action and the moral-psychological continuity of action, intention, and consequence.",
     explanation:
       "In the Bhagavad Gita study path, karma is best approached first as responsibility for action. Interpretive traditions then explore how intention, attachment, duty, and consequence shape the inner life.",
+    definitions: [
+      {
+        title: "Action as responsibility",
+        definition: "Karma first means action: what is done through body, speech, intention, and attention.",
+        context: "For beginning Gita study, this keeps the concept concrete before moving into metaphysics.",
+        tradition: "Sanatana Dharma",
+        sourceLabel: "Bhagavad Gita study context",
+      },
+      {
+        title: "Action with consequence",
+        definition: "Karma also names the continuity between action, motive, habit, and consequence.",
+        context: "Different schools explain the mechanism differently, so the platform keeps those views separated.",
+        tradition: "Darshana traditions",
+      },
+    ],
+    traditionViews: [
+      {
+        title: "Karma Yoga reading",
+        positionSummary: "The Gita turns karma into a discipline of sincere action without possessiveness toward results.",
+        nuance: "This reading emphasizes purification of motive and steadiness in action.",
+        tradition: "Sanatana Dharma",
+        school: "Karma Yoga",
+      },
+      {
+        title: "Mimamsa concern",
+        positionSummary: "Mimamsa gives special attention to action, injunction, ritual order, and dharma.",
+        nuance: "Its focus should not be flattened into the Gita's devotional or Vedantic interpretations.",
+        tradition: "Sanatana Dharma",
+        school: "Mimamsa",
+        differsFrom: "It approaches action through scriptural duty and ritual interpretation more directly than many contemplative summaries.",
+      },
+    ],
+    misconceptions: [
+      {
+        title: "Karma is not fatalism",
+        correction: "Karma does not mean passively accepting everything as deserved.",
+        whyItMatters: "The Gita repeatedly asks for action, discernment, and responsibility.",
+      },
+      {
+        title: "Karma is not only reward and punishment",
+        correction: "It includes intention, habit, duty, and the shaping of consciousness.",
+        whyItMatters: "A simplistic reward model can make the teaching morally careless.",
+      },
+    ],
+    practices: [
+      {
+        title: "Before action",
+        description: "Name the duty, the intention, and the attachment you are most likely to carry into the action.",
+      },
+      {
+        title: "After action",
+        description: "Review the result as instruction rather than as your identity.",
+        caution: "This is contemplative practice, not a way to avoid accountability.",
+      },
+    ],
+    historicalEvolution: [
+      {
+        period: "Vedic and ritual contexts",
+        description: "Action is closely linked with ritual order, duty, and consequences preserved through sacred practice.",
+      },
+      {
+        period: "Gita synthesis",
+        description: "The Gita interiorizes action by emphasizing intention, attachment, offering, and disciplined participation in the world.",
+      },
+    ],
+    semanticNeighbors: [
+      {
+        label: "Dharma",
+        relationshipType: "RELATED_TO",
+        explanation: "Dharma clarifies what kind of action is fitting; karma studies action and consequence.",
+        href: "/concepts/dharma",
+      },
+      {
+        label: "Samatva",
+        relationshipType: "PRACTICAL_PARALLEL",
+        explanation: "Equanimity describes the inner posture that keeps action from being ruled by success and failure.",
+        href: "/concepts/samatva",
+      },
+    ],
     relatedConceptSlugs: ["dharma", "samatva", "moksha"],
     relatedBooks: [
       {

@@ -29,6 +29,16 @@ enum MeaningLayerType {
   SCIENTIFIC_PARALLEL
 }
 
+enum CommentaryLayerType {
+  TEXTUAL
+  PHILOLOGICAL
+  PHILOSOPHICAL
+  DEVOTIONAL
+  PRACTICAL
+  HISTORICAL
+  COMPARATIVE
+}
+
 enum SourceType {
   SCRIPTURE
   COMMENTARY
@@ -65,6 +75,18 @@ enum ContentEntityType {
   KNOWLEDGE_NODE
   KNOWLEDGE_EDGE
   RELATED_CONCEPT
+  COMMENTARY_LAYER
+  CITATION
+  CANONICAL_REFERENCE
+  SCRIPTURE_RELATIONSHIP
+  CONCEPT_DEFINITION
+  CONCEPT_TRADITION_VIEW
+  CONCEPT_MISCONCEPTION
+  CONCEPT_PRACTICE
+  CONCEPT_EVOLUTION
+  CONCEPT_SEMANTIC_NEIGHBOR
+  LEARNING_PATH
+  LEARNING_PATH_STEP
 }
 
 enum AuditAction {
@@ -96,31 +118,77 @@ enum KnowledgeRelationshipType {
   EXPLAINS
   COMMENTARY_ON
   DERIVED_FROM
+  EXPANDS_UPON
+  REFERENCES
+  PHILOSOPHICALLY_SIMILAR
+  PHILOSOPHICALLY_OPPOSED
+  PRACTICAL_PARALLEL
+  CONTEXTUALIZES
+}
+
+enum ScriptureRelationshipType {
+  EXPANDS_UPON
+  REFERENCES
+  PHILOSOPHICALLY_SIMILAR
+  PHILOSOPHICALLY_OPPOSED
+  DERIVED_FROM
+  COMMENTARY_ON
+  PRACTICAL_PARALLEL
+  CONTEXTUALIZES
+}
+
+enum CitationRole {
+  PRIMARY_TEXT
+  TRANSLATION
+  COMMENTARY
+  CROSS_REFERENCE
+  SCHOLARLY_SUPPORT
+  HISTORICAL_CONTEXT
+  REVIEW_NOTE
+}
+
+enum LearningPathKind {
+  BEGINNER
+  KARMA_YOGA
+  BHAKTI
+  MEDITATION
+  VEDANTA
+  PEACE_GUIDANCE
+  DHARMA
+}
+
+enum LearningStepKind {
+  SCRIPTURE_READING
+  CONCEPT_STUDY
+  COMMENTARY_COMPARISON
+  PRACTICE_REFLECTION
+  CROSS_REFERENCE
+  REVIEW_PAUSE
 }
 
 model WisdomText {
-  id          String        @id @default(cuid())
-  slug        String        @unique
-  title       String
-  tradition   String
-  summary     String
-  status      ContentStatus @default(DRAFT)
-  lessons     Lesson[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  title     String
+  tradition String
+  summary   String
+  status    ContentStatus @default(DRAFT)
+  lessons   Lesson[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 model Lesson {
-  id            String     @id @default(cuid())
-  wisdomTextId  String
-  wisdomText    WisdomText @relation(fields: [wisdomTextId], references: [id], onDelete: Cascade)
-  title         String
-  slug          String
-  order         Int
-  body          String
-  shlokas       Shloka[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  wisdomTextId String
+  wisdomText   WisdomText @relation(fields: [wisdomTextId], references: [id], onDelete: Cascade)
+  title        String
+  slug         String
+  order        Int
+  body         String
+  shlokas      Shloka[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@unique([wisdomTextId, slug])
   @@index([wisdomTextId, order])
@@ -143,25 +211,26 @@ model Shloka {
 }
 
 model Book {
-  id              String          @id @default(cuid())
-  slug            String          @unique
-  title           String
-  subtitle        String?
-  tradition       String
-  difficulty      DifficultyLevel @default(BEGINNER)
-  summary         String
-  beginnerSummary String
-  status          ContentStatus   @default(PUBLISHED)
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int             @default(0)
+  id                  String               @id @default(cuid())
+  slug                String               @unique
+  title               String
+  subtitle            String?
+  tradition           String
+  difficulty          DifficultyLevel      @default(BEGINNER)
+  summary             String
+  beginnerSummary     String
+  status              ContentStatus        @default(PUBLISHED)
+  verificationStatus  VerificationStatus   @default(DRAFT)
+  confidenceLevel     Int                  @default(0)
   interpretationLabel String?
-  reviewNotes     String?
-  reviewedById    String?
-  reviewedAt      DateTime?
-  chapters        Chapter[]
-  knowledgeNodes  KnowledgeNode[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  chapters            Chapter[]
+  knowledgeNodes      KnowledgeNode[]
+  canonicalReferences CanonicalReference[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([status, difficulty])
   @@index([verificationStatus, confidenceLevel])
@@ -169,23 +238,23 @@ model Book {
 }
 
 model Chapter {
-  id        String   @id @default(cuid())
-  bookId    String
-  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  number    Int
-  slug      String
-  title     String
-  summary   String
-  overview  String
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int      @default(0)
+  id                  String             @id @default(cuid())
+  bookId              String
+  book                Book               @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  number              Int
+  slug                String
+  title               String
+  summary             String
+  overview            String
+  verificationStatus  VerificationStatus @default(DRAFT)
+  confidenceLevel     Int                @default(0)
   interpretationLabel String?
-  reviewNotes String?
-  reviewedById String?
-  reviewedAt DateTime?
-  verses    Verse[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  verses              Verse[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
   @@unique([bookId, number])
   @@unique([bookId, slug])
@@ -194,9 +263,9 @@ model Chapter {
 }
 
 model Verse {
-  id                   String          @id @default(cuid())
+  id                   String                  @id @default(cuid())
   chapterId            String
-  chapter              Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter              Chapter                 @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   number               Int
   slug                 String
   sanskrit             String
@@ -204,9 +273,9 @@ model Verse {
   wordByWord           String
   practicalApplication String
   philosophyInsight    String
-  status               ContentStatus   @default(PUBLISHED)
-  verificationStatus   VerificationStatus @default(DRAFT)
-  confidenceLevel      Int             @default(0)
+  status               ContentStatus           @default(PUBLISHED)
+  verificationStatus   VerificationStatus      @default(DRAFT)
+  confidenceLevel      Int                     @default(0)
   interpretationLabel  String?
   reviewNotes          String?
   reviewedById         String?
@@ -215,8 +284,11 @@ model Verse {
   concepts             VerseConcept[]
   commentaries         Commentary[]
   sources              VerseSource[]
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
+  citations            Citation[]
+  relationships        ScriptureRelationship[]
+  learningSteps        LearningPathStep[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
 
   @@unique([chapterId, number])
   @@unique([chapterId, slug])
@@ -226,21 +298,21 @@ model Verse {
 }
 
 model MeaningLayer {
-  id        String           @id @default(cuid())
-  verseId   String
-  verse     Verse            @relation(fields: [verseId], references: [id], onDelete: Cascade)
-  type      MeaningLayerType
-  title     String
-  body      String
-  order     Int
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int      @default(0)
+  id                  String             @id @default(cuid())
+  verseId             String
+  verse               Verse              @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  type                MeaningLayerType
+  title               String
+  body                String
+  order               Int
+  verificationStatus  VerificationStatus @default(DRAFT)
+  confidenceLevel     Int                @default(0)
   interpretationLabel String?
-  reviewNotes String?
-  reviewedById String?
-  reviewedAt DateTime?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
   @@unique([verseId, type])
   @@index([verseId, order])
@@ -249,23 +321,31 @@ model MeaningLayer {
 }
 
 model Concept {
-  id          String              @id @default(cuid())
-  slug        String              @unique
-  name        String
-  category    String
-  description String
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int             @default(0)
+  id                  String                    @id @default(cuid())
+  slug                String                    @unique
+  name                String
+  category            String
+  description         String
+  verificationStatus  VerificationStatus        @default(DRAFT)
+  confidenceLevel     Int                       @default(0)
   interpretationLabel String?
-  reviewNotes String?
-  reviewedById String?
-  reviewedAt DateTime?
-  verses      VerseConcept[]
-  knowledgeNodes KnowledgeNode[]
-  relatedFrom RelatedConcept[] @relation("RelatedConceptFrom")
-  relatedTo   RelatedConcept[] @relation("RelatedConceptTo")
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  verses              VerseConcept[]
+  knowledgeNodes      KnowledgeNode[]
+  relatedFrom         RelatedConcept[]          @relation("RelatedConceptFrom")
+  relatedTo           RelatedConcept[]          @relation("RelatedConceptTo")
+  definitions         ConceptDefinition[]
+  traditionViews      ConceptTraditionView[]
+  misconceptions      ConceptMisconception[]
+  practices           ConceptPractice[]
+  evolutionNotes      ConceptEvolution[]
+  semanticNeighbors   ConceptSemanticNeighbor[] @relation("ConceptSemanticNeighborFrom")
+  semanticNeighborOf  ConceptSemanticNeighbor[] @relation("ConceptSemanticNeighborTo")
+  learningSteps       LearningPathStep[]
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
 
   @@index([category])
   @@index([verificationStatus, confidenceLevel])
@@ -285,55 +365,98 @@ model VerseConcept {
 }
 
 model Commentary {
-  id                 String   @id @default(cuid())
-  verseId            String
-  verse              Verse    @relation(fields: [verseId], references: [id], onDelete: Cascade)
-  sourceId           String?
-  source             Source?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
-  author             String
-  tradition          String
-  title              String
-  body               String
-  interpretationNote String
-  order              Int
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel    Int      @default(0)
+  id                  String              @id @default(cuid())
+  verseId             String
+  verse               Verse               @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  sourceId            String?
+  source              Source?             @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  traditionId         String?
+  traditionRef        Tradition?          @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?   @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  author              String
+  tradition           String
+  title               String
+  body                String
+  interpretationNote  String
+  layerType           CommentaryLayerType @default(PHILOSOPHICAL)
+  language            String?
+  historicalPeriod    String?
+  sourceLocator       String?
+  attributionNote     String?
+  order               Int
+  verificationStatus  VerificationStatus  @default(DRAFT)
+  confidenceLevel     Int                 @default(0)
   interpretationLabel String?
-  reviewNotes        String?
-  reviewedById       String?
-  reviewedAt         DateTime?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  layers              CommentaryLayer[]
+  citations           Citation[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
   @@index([verseId, order])
   @@index([sourceId])
+  @@index([traditionId])
+  @@index([schoolId])
   @@index([tradition])
   @@index([verificationStatus])
 }
 
+model CommentaryLayer {
+  id                  String              @id @default(cuid())
+  commentaryId        String
+  commentary          Commentary          @relation(fields: [commentaryId], references: [id], onDelete: Cascade)
+  type                CommentaryLayerType
+  title               String
+  body                String
+  order               Int
+  verificationStatus  VerificationStatus  @default(DRAFT)
+  confidenceLevel     Int                 @default(0)
+  interpretationLabel String?
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  citations           Citation[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@unique([commentaryId, type, order])
+  @@index([commentaryId, order])
+  @@index([type])
+  @@index([verificationStatus])
+}
+
 model Source {
-  id           String        @id @default(cuid())
-  slug         String        @unique
-  title        String
-  author       String?
-  translator   String?
-  publisher    String?
-  url          String?
-  sourceType   SourceType
-  citation     String
-  publication  String?
-  notes        String?
-  credibilitySummary String?
-  credibilityScore Int        @default(0)
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int         @default(0)
-  reviewNotes String?
-  reviewedById String?
-  reviewedAt DateTime?
-  commentaries Commentary[]
-  verses       VerseSource[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                  String               @id @default(cuid())
+  slug                String               @unique
+  title               String
+  author              String?
+  translator          String?
+  publisher           String?
+  url                 String?
+  sourceType          SourceType
+  citation            String
+  publication         String?
+  language            String?
+  edition             String?
+  historicalDate      String?
+  provenanceNote      String?
+  notes               String?
+  credibilitySummary  String?
+  credibilityScore    Int                  @default(0)
+  verificationStatus  VerificationStatus   @default(DRAFT)
+  confidenceLevel     Int                  @default(0)
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  commentaries        Commentary[]
+  verses              VerseSource[]
+  citations           Citation[]
+  canonicalReferences CanonicalReference[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([sourceType])
   @@index([verificationStatus, credibilityScore])
@@ -342,8 +465,8 @@ model Source {
 model VerseSource {
   verseId  String
   sourceId String
-  verse    Verse  @relation(fields: [verseId], references: [id], onDelete: Cascade)
-  source   Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  verse    Verse   @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  source   Source  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   locator  String
   note     String?
 
@@ -352,55 +475,78 @@ model VerseSource {
 }
 
 model Tradition {
-  id          String            @id @default(cuid())
-  slug        String            @unique
-  name        String
-  summary     String
-  nodes       KnowledgeNode[]
-  schools     PhilosophySchool[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id                     String                  @id @default(cuid())
+  parentId               String?
+  parent                 Tradition?              @relation("TraditionHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children               Tradition[]             @relation("TraditionHierarchy")
+  slug                   String                  @unique
+  name                   String
+  summary                String
+  scopeNote              String?
+  nodes                  KnowledgeNode[]
+  schools                PhilosophySchool[]
+  commentaries           Commentary[]
+  knowledgeEdges         KnowledgeEdge[]
+  relatedConcepts        RelatedConcept[]
+  conceptDefinitions     ConceptDefinition[]
+  conceptViews           ConceptTraditionView[]
+  canonicalReferences    CanonicalReference[]
+  scriptureRelationships ScriptureRelationship[]
+  learningPaths          LearningPath[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+
+  @@index([parentId])
 }
 
 model PhilosophySchool {
-  id          String          @id @default(cuid())
-  traditionId String?
-  tradition   Tradition?      @relation(fields: [traditionId], references: [id], onDelete: SetNull)
-  slug        String          @unique
-  name        String
-  summary     String
-  nodes       KnowledgeNode[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                     String                  @id @default(cuid())
+  traditionId            String?
+  tradition              Tradition?              @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  slug                   String                  @unique
+  name                   String
+  summary                String
+  coreClaim              String?
+  cautionNote            String?
+  nodes                  KnowledgeNode[]
+  commentaries           Commentary[]
+  knowledgeEdges         KnowledgeEdge[]
+  relatedConcepts        RelatedConcept[]
+  conceptDefinitions     ConceptDefinition[]
+  conceptViews           ConceptTraditionView[]
+  scriptureRelationships ScriptureRelationship[]
+  learningPaths          LearningPath[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
 
   @@index([traditionId])
 }
 
 model KnowledgeNode {
-  id          String            @id @default(cuid())
-  slug        String            @unique
-  title       String
-  subtitle    String?
-  summary     String
-  nodeType    KnowledgeNodeType
-  traditionId String?
-  tradition   Tradition?        @relation(fields: [traditionId], references: [id], onDelete: SetNull)
-  schoolId    String?
-  school      PhilosophySchool? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
-  conceptId   String?
-  concept     Concept?          @relation(fields: [conceptId], references: [id], onDelete: SetNull)
-  bookId      String?
-  book        Book?             @relation(fields: [bookId], references: [id], onDelete: SetNull)
-  verificationStatus VerificationStatus @default(DRAFT)
-  confidenceLevel Int           @default(0)
+  id                  String             @id @default(cuid())
+  slug                String             @unique
+  title               String
+  subtitle            String?
+  summary             String
+  nodeType            KnowledgeNodeType
+  traditionId         String?
+  tradition           Tradition?         @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?  @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  conceptId           String?
+  concept             Concept?           @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  bookId              String?
+  book                Book?              @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  verificationStatus  VerificationStatus @default(DRAFT)
+  confidenceLevel     Int                @default(0)
   interpretationLabel String?
-  reviewNotes String?
-  reviewedById String?
-  reviewedAt DateTime?
-  outgoing    KnowledgeEdge[]   @relation("KnowledgeEdgeSource")
-  incoming    KnowledgeEdge[]   @relation("KnowledgeEdgeTarget")
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  outgoing            KnowledgeEdge[]    @relation("KnowledgeEdgeSource")
+  incoming            KnowledgeEdge[]    @relation("KnowledgeEdgeTarget")
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
 
   @@index([nodeType])
   @@index([traditionId])
@@ -411,73 +557,419 @@ model KnowledgeNode {
 }
 
 model KnowledgeEdge {
-  id               String                    @id @default(cuid())
-  sourceNodeId     String
-  targetNodeId     String
-  sourceNode       KnowledgeNode             @relation("KnowledgeEdgeSource", fields: [sourceNodeId], references: [id], onDelete: Cascade)
-  targetNode       KnowledgeNode             @relation("KnowledgeEdgeTarget", fields: [targetNodeId], references: [id], onDelete: Cascade)
-  relationshipType KnowledgeRelationshipType
-  label            String
-  summary          String
-  bidirectional    Boolean                   @default(false)
-  weight           Int                       @default(1)
-  verificationStatus VerificationStatus      @default(DRAFT)
-  confidenceLevel  Int                       @default(0)
+  id                  String                    @id @default(cuid())
+  sourceNodeId        String
+  targetNodeId        String
+  sourceNode          KnowledgeNode             @relation("KnowledgeEdgeSource", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode          KnowledgeNode             @relation("KnowledgeEdgeTarget", fields: [targetNodeId], references: [id], onDelete: Cascade)
+  relationshipType    KnowledgeRelationshipType
+  label               String
+  summary             String
+  explanation         String?
+  traditionId         String?
+  tradition           Tradition?                @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?         @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  bidirectional       Boolean                   @default(false)
+  weight              Int                       @default(1)
+  verificationStatus  VerificationStatus        @default(DRAFT)
+  confidenceLevel     Int                       @default(0)
   interpretationLabel String?
-  reviewNotes      String?
-  reviewedById     String?
-  reviewedAt       DateTime?
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
 
   @@unique([sourceNodeId, targetNodeId, relationshipType])
   @@index([targetNodeId])
   @@index([relationshipType])
+  @@index([traditionId])
+  @@index([schoolId])
   @@index([sourceNodeId, weight])
   @@index([verificationStatus])
 }
 
 model RelatedConcept {
-  fromConceptId    String
-  toConceptId      String
-  fromConcept      Concept                   @relation("RelatedConceptFrom", fields: [fromConceptId], references: [id], onDelete: Cascade)
-  toConcept        Concept                   @relation("RelatedConceptTo", fields: [toConceptId], references: [id], onDelete: Cascade)
-  relationshipType KnowledgeRelationshipType
-  label            String
-  summary          String
-  bidirectional    Boolean                   @default(true)
-  weight           Int                       @default(1)
-  verificationStatus VerificationStatus      @default(DRAFT)
-  confidenceLevel  Int                       @default(0)
+  id                  String                    @id @default(cuid())
+  fromConceptId       String
+  toConceptId         String
+  fromConcept         Concept                   @relation("RelatedConceptFrom", fields: [fromConceptId], references: [id], onDelete: Cascade)
+  toConcept           Concept                   @relation("RelatedConceptTo", fields: [toConceptId], references: [id], onDelete: Cascade)
+  relationshipType    KnowledgeRelationshipType
+  label               String
+  summary             String
+  explanation         String?
+  traditionId         String?
+  tradition           Tradition?                @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?         @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  bidirectional       Boolean                   @default(true)
+  weight              Int                       @default(1)
+  verificationStatus  VerificationStatus        @default(DRAFT)
+  confidenceLevel     Int                       @default(0)
   interpretationLabel String?
-  reviewNotes      String?
-  reviewedById     String?
-  reviewedAt       DateTime?
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
 
-  @@id([fromConceptId, toConceptId, relationshipType])
+  @@unique([fromConceptId, toConceptId, relationshipType])
   @@index([toConceptId])
+  @@index([relationshipType])
+  @@index([traditionId])
+  @@index([schoolId])
+  @@index([verificationStatus])
+}
+
+model CanonicalReference {
+  id                 String                  @id @default(cuid())
+  slug               String                  @unique
+  label              String
+  textTitle          String
+  bookId             String?
+  book               Book?                   @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  traditionId        String?
+  tradition          Tradition?              @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  sourceId           String?
+  source             Source?                 @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  sectionLabel       String?
+  chapterNumber      Int?
+  verseNumber        Int?
+  locator            String?
+  excerpt            String?
+  note               String?
+  verificationStatus VerificationStatus      @default(DRAFT)
+  confidenceLevel    Int                     @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  targetedBy         ScriptureRelationship[]
+  citations          Citation[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@index([textTitle])
+  @@index([bookId])
+  @@index([traditionId])
+  @@index([sourceId])
+  @@index([verificationStatus])
+}
+
+model ScriptureRelationship {
+  id                   String                    @id @default(cuid())
+  verseId              String
+  verse                Verse                     @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  targetReferenceId    String
+  targetReference      CanonicalReference        @relation(fields: [targetReferenceId], references: [id], onDelete: Cascade)
+  relationshipType     ScriptureRelationshipType
+  label                String
+  explanation          String
+  philosophicalContext String?
+  sourceNotes          String?
+  traditionId          String?
+  tradition            Tradition?                @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId             String?
+  school               PhilosophySchool?         @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  weight               Int                       @default(1)
+  verificationStatus   VerificationStatus        @default(DRAFT)
+  confidenceLevel      Int                       @default(0)
+  interpretationLabel  String?
+  reviewNotes          String?
+  reviewedById         String?
+  reviewedAt           DateTime?
+  citations            Citation[]
+  learningSteps        LearningPathStep[]
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+
+  @@unique([verseId, targetReferenceId, relationshipType])
+  @@index([targetReferenceId])
+  @@index([relationshipType])
+  @@index([traditionId])
+  @@index([schoolId])
+  @@index([verificationStatus])
+}
+
+model Citation {
+  id                      String                 @id @default(cuid())
+  sourceId                String?
+  source                  Source?                @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  entityType              ContentEntityType
+  entityId                String
+  role                    CitationRole
+  locator                 String?
+  quotedText              String?
+  contextNote             String?
+  provenanceNote          String?
+  verseId                 String?
+  verse                   Verse?                 @relation(fields: [verseId], references: [id], onDelete: Cascade)
+  commentaryId            String?
+  commentary              Commentary?            @relation(fields: [commentaryId], references: [id], onDelete: Cascade)
+  commentaryLayerId       String?
+  commentaryLayer         CommentaryLayer?       @relation(fields: [commentaryLayerId], references: [id], onDelete: Cascade)
+  canonicalReferenceId    String?
+  canonicalReference      CanonicalReference?    @relation(fields: [canonicalReferenceId], references: [id], onDelete: Cascade)
+  scriptureRelationshipId String?
+  scriptureRelationship   ScriptureRelationship? @relation(fields: [scriptureRelationshipId], references: [id], onDelete: Cascade)
+  verificationStatus      VerificationStatus     @default(DRAFT)
+  confidenceLevel         Int                    @default(0)
+  reviewNotes             String?
+  reviewedById            String?
+  reviewedAt              DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  @@index([entityType, entityId])
+  @@index([sourceId])
+  @@index([role])
+  @@index([verseId])
+  @@index([commentaryId])
+  @@index([commentaryLayerId])
+  @@index([canonicalReferenceId])
+  @@index([scriptureRelationshipId])
+  @@index([verificationStatus])
+}
+
+model ConceptDefinition {
+  id                  String             @id @default(cuid())
+  conceptId           String
+  concept             Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  traditionId         String?
+  tradition           Tradition?         @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?  @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  title               String
+  definition          String
+  context             String
+  sourceLabel         String?
+  order               Int                @default(0)
+  verificationStatus  VerificationStatus @default(DRAFT)
+  confidenceLevel     Int                @default(0)
+  interpretationLabel String?
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([conceptId, order])
+  @@index([traditionId])
+  @@index([schoolId])
+  @@index([verificationStatus])
+}
+
+model ConceptTraditionView {
+  id                  String             @id @default(cuid())
+  conceptId           String
+  concept             Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  traditionId         String?
+  tradition           Tradition?         @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId            String?
+  school              PhilosophySchool?  @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  title               String
+  positionSummary     String
+  nuance              String
+  differsFrom         String?
+  order               Int                @default(0)
+  verificationStatus  VerificationStatus @default(DRAFT)
+  confidenceLevel     Int                @default(0)
+  interpretationLabel String?
+  reviewNotes         String?
+  reviewedById        String?
+  reviewedAt          DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([conceptId, order])
+  @@index([traditionId])
+  @@index([schoolId])
+  @@index([verificationStatus])
+}
+
+model ConceptMisconception {
+  id                 String             @id @default(cuid())
+  conceptId          String
+  concept            Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  title              String
+  correction         String
+  whyItMatters       String
+  order              Int                @default(0)
+  verificationStatus VerificationStatus @default(DRAFT)
+  confidenceLevel    Int                @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([conceptId, order])
+  @@index([verificationStatus])
+}
+
+model ConceptPractice {
+  id                 String             @id @default(cuid())
+  conceptId          String
+  concept            Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  caution            String?
+  order              Int                @default(0)
+  verificationStatus VerificationStatus @default(DRAFT)
+  confidenceLevel    Int                @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([conceptId, order])
+  @@index([verificationStatus])
+}
+
+model ConceptEvolution {
+  id                 String             @id @default(cuid())
+  conceptId          String
+  concept            Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  period             String
+  description        String
+  order              Int                @default(0)
+  verificationStatus VerificationStatus @default(DRAFT)
+  confidenceLevel    Int                @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([conceptId, order])
+  @@index([verificationStatus])
+}
+
+model ConceptSemanticNeighbor {
+  id                 String                    @id @default(cuid())
+  conceptId          String
+  concept            Concept                   @relation("ConceptSemanticNeighborFrom", fields: [conceptId], references: [id], onDelete: Cascade)
+  relatedConceptId   String?
+  relatedConcept     Concept?                  @relation("ConceptSemanticNeighborTo", fields: [relatedConceptId], references: [id], onDelete: SetNull)
+  label              String
+  relationshipType   KnowledgeRelationshipType
+  explanation        String
+  caution            String?
+  weight             Int                       @default(1)
+  verificationStatus VerificationStatus        @default(DRAFT)
+  confidenceLevel    Int                       @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  @@index([conceptId, weight])
+  @@index([relatedConceptId])
   @@index([relationshipType])
   @@index([verificationStatus])
 }
 
+model LearningPath {
+  id                 String                 @id @default(cuid())
+  slug               String                 @unique
+  title              String
+  summary            String
+  kind               LearningPathKind
+  difficulty         DifficultyLevel        @default(BEGINNER)
+  traditionId        String?
+  tradition          Tradition?             @relation(fields: [traditionId], references: [id], onDelete: SetNull)
+  schoolId           String?
+  school             PhilosophySchool?      @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  guidanceNote       String?
+  status             ContentStatus          @default(DRAFT)
+  verificationStatus VerificationStatus     @default(DRAFT)
+  confidenceLevel    Int                    @default(0)
+  reviewNotes        String?
+  reviewedById       String?
+  reviewedAt         DateTime?
+  steps              LearningPathStep[]
+  progress           UserLearningProgress[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  @@index([kind, difficulty])
+  @@index([traditionId])
+  @@index([schoolId])
+  @@index([status])
+  @@index([verificationStatus])
+}
+
+model LearningPathStep {
+  id                      String                 @id @default(cuid())
+  learningPathId          String
+  learningPath            LearningPath           @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  kind                    LearningStepKind
+  title                   String
+  summary                 String
+  contemplationPrompt     String?
+  practiceNote            String?
+  order                   Int
+  verseId                 String?
+  verse                   Verse?                 @relation(fields: [verseId], references: [id], onDelete: SetNull)
+  conceptId               String?
+  concept                 Concept?               @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  scriptureRelationshipId String?
+  scriptureRelationship   ScriptureRelationship? @relation(fields: [scriptureRelationshipId], references: [id], onDelete: SetNull)
+  currentProgress         UserLearningProgress[] @relation("CurrentLearningPathStep")
+  verificationStatus      VerificationStatus     @default(DRAFT)
+  confidenceLevel         Int                    @default(0)
+  reviewNotes             String?
+  reviewedById            String?
+  reviewedAt              DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  @@unique([learningPathId, order])
+  @@index([kind])
+  @@index([verseId])
+  @@index([conceptId])
+  @@index([scriptureRelationshipId])
+  @@index([verificationStatus])
+}
+
+model UserLearningProgress {
+  id               String            @id @default(cuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningPathId   String
+  learningPath     LearningPath      @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  currentStepId    String?
+  currentStep      LearningPathStep? @relation("CurrentLearningPathStep", fields: [currentStepId], references: [id], onDelete: SetNull)
+  completedStepIds String[]          @default([])
+  reflectionNote   String?
+  updatedAt        DateTime          @updatedAt
+  createdAt        DateTime          @default(now())
+
+  @@unique([userId, learningPathId])
+  @@index([learningPathId])
+  @@index([currentStepId])
+}
+
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  passwordHash  String?
-  role          UserRole   @default(CONTRIBUTOR)
-  active        Boolean    @default(true)
-  accounts      Account[]
-  sessions      Session[]
-  revisions     Revision[]
-  reviews       ContentReview[]
-  auditLogs     AuditLog[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id               String                 @id @default(cuid())
+  email            String                 @unique
+  emailVerified    DateTime?
+  name             String?
+  image            String?
+  passwordHash     String?
+  role             UserRole               @default(CONTRIBUTOR)
+  active           Boolean                @default(true)
+  accounts         Account[]
+  sessions         Session[]
+  revisions        Revision[]
+  reviews          ContentReview[]
+  auditLogs        AuditLog[]
+  learningProgress UserLearningProgress[]
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 
   @@index([role, active])
   @@index([email, active])
@@ -521,17 +1013,17 @@ model VerificationToken {
 }
 
 model Revision {
-  id          String            @id @default(cuid())
-  entityType  ContentEntityType
-  entityId    String
-  version     Int
-  title       String
-  summary     String?
-  snapshot    Json
-  changeNote  String?
-  authorId    String?
-  author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  createdAt   DateTime          @default(now())
+  id         String            @id @default(cuid())
+  entityType ContentEntityType
+  entityId   String
+  version    Int
+  title      String
+  summary    String?
+  snapshot   Json
+  changeNote String?
+  authorId   String?
+  author     User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt  DateTime          @default(now())
 
   @@unique([entityType, entityId, version])
   @@index([entityType, entityId, createdAt])
@@ -539,18 +1031,18 @@ model Revision {
 }
 
 model ContentReview {
-  id          String             @id @default(cuid())
-  entityType  ContentEntityType
-  entityId    String
-  status      VerificationStatus @default(REVIEW)
-  confidenceLevel Int            @default(0)
-  reviewerId  String?
-  reviewer    User?              @relation(fields: [reviewerId], references: [id], onDelete: SetNull)
-  sourceNotes String?
-  truthNotes  String?
-  decisionNotes String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id              String             @id @default(cuid())
+  entityType      ContentEntityType
+  entityId        String
+  status          VerificationStatus @default(REVIEW)
+  confidenceLevel Int                @default(0)
+  reviewerId      String?
+  reviewer        User?              @relation(fields: [reviewerId], references: [id], onDelete: SetNull)
+  sourceNotes     String?
+  truthNotes      String?
+  decisionNotes   String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([entityType, entityId])
   @@index([status, confidenceLevel])
@@ -558,15 +1050,15 @@ model ContentReview {
 }
 
 model AuditLog {
-  id          String            @id @default(cuid())
-  actorId     String?
-  actor       User?             @relation(fields: [actorId], references: [id], onDelete: SetNull)
-  action      AuditAction
-  entityType  ContentEntityType
-  entityId    String
-  message     String
-  metadata    Json?
-  createdAt   DateTime          @default(now())
+  id         String            @id @default(cuid())
+  actorId    String?
+  actor      User?             @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     AuditAction
+  entityType ContentEntityType
+  entityId   String
+  message    String
+  metadata   Json?
+  createdAt  DateTime          @default(now())
 
   @@index([entityType, entityId, createdAt])
   @@index([actorId, createdAt])

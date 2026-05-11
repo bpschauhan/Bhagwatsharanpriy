@@ -1,4 +1,4 @@
-export type SearchResultType = "verse" | "concept" | "book" | "chapter" | "philosophy" | "related";
+export type SearchResultType = "verse" | "concept" | "book" | "chapter" | "philosophy" | "related" | "learning_path";
 
 export type SearchDocument = {
   id: string;

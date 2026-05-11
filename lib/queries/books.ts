@@ -16,9 +16,23 @@ const verseInclude = {
   },
   commentaries: {
     orderBy: { order: "asc" as const },
+    include: {
+      school: true,
+      layers: {
+        orderBy: { order: "asc" as const },
+      },
+    },
   },
   sources: {
     include: { source: true },
+  },
+  relationships: {
+    orderBy: { weight: "desc" as const },
+    include: {
+      targetReference: true,
+      tradition: true,
+      school: true,
+    },
   },
 };
 
@@ -203,8 +217,32 @@ type VerseRecord = {
   philosophyInsight: string;
   meaningLayers: Array<{ type: VerseContent["meaningLayers"][number]["type"]; title: string; body: string }>;
   concepts: Array<{ concept: ConceptContent; order: number }>;
-  commentaries: Array<VerseContent["commentaries"][number]>;
+  commentaries: Array<
+    VerseContent["commentaries"][number] & {
+      school?: string | { name: string } | null;
+      layerType?: VerseContent["commentaries"][number]["layerType"];
+      language?: string | null;
+      historicalPeriod?: string | null;
+      sourceLocator?: string | null;
+      attributionNote?: string | null;
+      layers?: NonNullable<VerseContent["commentaries"][number]["layers"]>;
+    }
+  >;
   sources: Array<{ source: SourceContent }>;
+  relationships?: Array<{
+    relationshipType: NonNullable<VerseContent["relationships"]>[number]["relationshipType"];
+    label: string;
+    explanation: string;
+    philosophicalContext: string | null;
+    confidenceLevel: number;
+    targetReference: {
+      label: string;
+      textTitle: string;
+      locator: string | null;
+    };
+    tradition: { name: string } | null;
+    school: { name: string } | null;
+  }>;
 };
 
 function mapChapter(
@@ -250,10 +288,44 @@ function mapVerse(
     commentaries: verse.commentaries.map((commentary) => ({
       author: commentary.author,
       tradition: commentary.tradition,
+      school: getCommentarySchoolName(commentary.school),
       title: commentary.title,
       body: commentary.body,
       interpretationNote: commentary.interpretationNote,
+      layerType: "layerType" in commentary ? commentary.layerType : undefined,
+      language: "language" in commentary ? commentary.language ?? undefined : undefined,
+      historicalPeriod: "historicalPeriod" in commentary ? commentary.historicalPeriod ?? undefined : undefined,
+      sourceLocator: "sourceLocator" in commentary ? commentary.sourceLocator ?? undefined : undefined,
+      attributionNote: "attributionNote" in commentary ? commentary.attributionNote ?? undefined : undefined,
+      layers:
+        "layers" in commentary
+          ? commentary.layers?.map((layer) => ({
+              type: layer.type,
+              title: layer.title,
+              body: layer.body,
+            }))
+          : undefined,
+    })),
+    relationships: verse.relationships?.map((relationship) => ({
+      targetLabel: relationship.targetReference.label,
+      targetTextTitle: relationship.targetReference.textTitle,
+      targetLocator: relationship.targetReference.locator ?? undefined,
+      relationshipType: relationship.relationshipType,
+      label: relationship.label,
+      explanation: relationship.explanation,
+      philosophicalContext: relationship.philosophicalContext ?? undefined,
+      tradition: relationship.tradition?.name,
+      school: relationship.school?.name,
+      confidenceLevel: relationship.confidenceLevel,
     })),
     sourceSlugs: sources.map((source) => source.slug),
   };
+}
+
+function getCommentarySchoolName(school: string | { name: string } | null | undefined) {
+  if (!school) {
+    return undefined;
+  }
+
+  return typeof school === "string" ? school : school.name;
 }

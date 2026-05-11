@@ -231,6 +231,38 @@ export default async function VersePage({ params }: VersePageProps) {
               </CardContent>
             </Card>
 
+            {currentVerse.relationships && currentVerse.relationships.length > 0 ? (
+              <Card id="cross-scripture" className="scroll-mt-24">
+                <CardHeader>
+                  <CardTitle>Cross-scripture relationships</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {currentVerse.relationships.map((relationship) => (
+                    <div
+                      key={`${relationship.targetLabel}-${relationship.relationshipType}`}
+                      className="rounded-lg border border-border bg-background/60 p-4"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{relationship.relationshipType.replaceAll("_", " ").toLowerCase()}</Badge>
+                        {relationship.school ? <Badge variant="muted">{relationship.school}</Badge> : null}
+                        {relationship.confidenceLevel ? (
+                          <Badge variant="outline">{relationship.confidenceLevel}% reviewed</Badge>
+                        ) : null}
+                      </div>
+                      <h3 className="mt-3 font-serif text-xl font-semibold">{relationship.targetLabel}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{relationship.targetTextTitle}</p>
+                      <p className="mt-3 leading-7 text-foreground/76">{relationship.explanation}</p>
+                      {relationship.philosophicalContext ? (
+                        <p className="mt-3 border-l-2 border-primary/40 pl-4 text-sm leading-7 text-foreground/68">
+                          {relationship.philosophicalContext}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ) : null}
+
             <Card className="border-primary/25 bg-card">
               <CardHeader>
                 <CardTitle>Parallel teachings</CardTitle>

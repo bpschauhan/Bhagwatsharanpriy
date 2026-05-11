@@ -97,6 +97,39 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
         </Container>
       </Section>
 
+      <Section className="pt-0">
+        <Container>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <DetailList
+              title="Definitions in context"
+              items={(concept.definitions ?? []).map((item) => ({
+                title: item.title,
+                meta: [item.school, item.tradition, item.sourceLabel].filter(Boolean).join(" / "),
+                body: `${item.definition} ${item.context}`,
+              }))}
+              empty="Definitions will expand as verified sources are added."
+            />
+            <DetailList
+              title="Tradition differences"
+              items={(concept.traditionViews ?? []).map((item) => ({
+                title: item.title,
+                meta: [item.school, item.tradition].filter(Boolean).join(" / "),
+                body: `${item.positionSummary} ${item.nuance}${item.differsFrom ? ` Difference: ${item.differsFrom}` : ""}`,
+              }))}
+              empty="Tradition-specific interpretations are awaiting review."
+            />
+            <DetailList
+              title="Misconceptions"
+              items={(concept.misconceptions ?? []).map((item) => ({
+                title: item.title,
+                body: `${item.correction} ${item.whyItMatters}`,
+              }))}
+              empty="Misconception notes will appear after review."
+            />
+          </div>
+        </Container>
+      </Section>
+
       <Section className="bg-card/45">
         <Container>
           <SectionHeader
@@ -129,7 +162,87 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
           </div>
         </Container>
       </Section>
+
+      <Section className="pt-0">
+        <Container>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <DetailList
+              title="Practice notes"
+              items={(concept.practices ?? []).map((item) => ({
+                title: item.title,
+                body: `${item.description}${item.caution ? ` Caution: ${item.caution}` : ""}`,
+              }))}
+              empty="Practice notes will remain modest and source-aware."
+            />
+            <DetailList
+              title="Historical evolution"
+              items={(concept.historicalEvolution ?? []).map((item) => ({
+                title: item.period,
+                body: item.description,
+              }))}
+              empty="Historical notes are awaiting source review."
+            />
+            <DetailList
+              title="Semantic neighbors"
+              items={(concept.semanticNeighbors ?? []).map((item) => ({
+                title: item.label,
+                meta: item.relationshipType.replaceAll("_", " ").toLowerCase(),
+                body: `${item.explanation}${item.caution ? ` Note: ${item.caution}` : ""}`,
+                href: item.href,
+              }))}
+              empty="Meaningful neighboring concepts will appear as relationships are verified."
+            />
+          </div>
+        </Container>
+      </Section>
     </>
+  );
+}
+
+function DetailList({
+  title,
+  items,
+  empty,
+}: {
+  title: string;
+  items: Array<{ title: string; meta?: string; body: string; href?: string }>;
+  empty: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {items.length > 0 ? (
+          items.map((item) => {
+            const content = (
+              <>
+                <span className="font-medium">{item.title}</span>
+                {item.meta ? <span className="mt-1 block text-xs uppercase tracking-[0.14em] text-muted-foreground">{item.meta}</span> : null}
+                <span className="mt-2 block text-sm leading-7 text-muted-foreground">{item.body}</span>
+              </>
+            );
+
+            return item.href ? (
+              <Link
+                key={`${item.title}-${item.href}`}
+                href={item.href as Route}
+                className="group block rounded-lg border border-border bg-background/60 p-4 transition-colors hover:border-primary/45"
+              >
+                {content}
+              </Link>
+            ) : (
+              <div key={item.title} className="rounded-lg border border-border bg-background/60 p-4">
+                {content}
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-sm leading-7 text-muted-foreground">{empty}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
