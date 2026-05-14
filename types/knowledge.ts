@@ -30,6 +30,8 @@ export type KnowledgeNode = {
   summary: string;
   nodeType: KnowledgeNodeType;
   parentId?: string;
+  zone?: string;
+  depth?: number;
   x: number;
   y: number;
   href?: string;
