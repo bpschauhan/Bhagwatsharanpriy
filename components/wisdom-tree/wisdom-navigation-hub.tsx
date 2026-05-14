@@ -7,9 +7,9 @@ import { LearningPathGuide } from "./learning-path-guide";
 
 export function WisdomNavigationHub({ initialNodeId = "wisdom-root" }: { initialNodeId?: string }) {
   return (
-    <Tabs defaultValue="tree" className="w-full">
+      <Tabs defaultValue="tree" className="w-full">
       <TabsList className="grid w-full grid-cols-3 lg:w-fit">
-        <TabsTrigger value="tree">Knowledge Tree</TabsTrigger>
+        <TabsTrigger value="tree">Lineage Explorer</TabsTrigger>
         <TabsTrigger value="timeline">Timeline</TabsTrigger>
         <TabsTrigger value="learning-paths">Learning Paths</TabsTrigger>
       </TabsList>

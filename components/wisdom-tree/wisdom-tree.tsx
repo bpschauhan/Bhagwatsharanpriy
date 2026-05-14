@@ -10,25 +10,22 @@ type WisdomTreeProps = {
   compact?: boolean;
 };
 
-/**
- * WisdomTree component with toggle between legacy force-graph and new hierarchy views
- */
 export function WisdomTree({ initialNodeId = "wisdom-root", compact }: WisdomTreeProps) {
-  const [viewMode, setViewMode] = useState<"new" | "legacy">("new");
+  const [viewMode, setViewMode] = useState<"atlas" | "roadmap">("atlas");
 
   return (
     <div className="w-full">
-      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "new" | "legacy")} className="w-full">
+      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "atlas" | "roadmap")} className="w-full">
         <TabsList className="grid w-fit grid-cols-2">
-          <TabsTrigger value="new">New Atlas View</TabsTrigger>
-          <TabsTrigger value="legacy">Classic Graph</TabsTrigger>
+          <TabsTrigger value="atlas">Civilization Atlas</TabsTrigger>
+          <TabsTrigger value="roadmap">Classic Roadmap</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="new" className="mt-6">
+        <TabsContent value="atlas" className="mt-6">
           <WisdomNavigationHub initialNodeId={initialNodeId} />
         </TabsContent>
 
-        <TabsContent value="legacy" className="mt-6">
+        <TabsContent value="roadmap" className="mt-6">
           <ExpandableMap initialNodeId={initialNodeId} compact={compact} />
         </TabsContent>
       </Tabs>

@@ -9,11 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { WisdomTree } from "@/components/wisdom-tree/wisdom-tree";
 
 export const metadata: Metadata = {
-  title: "Explore Wisdom Tree | Bhagwatsharanpriy",
-  description: "Explore an interactive wisdom tree connecting Vedas, Upanishads, Bhagavad Gita, Yoga, Vedanta, Sankhya, Tantra, Darshanas, and core concepts.",
+  title: "Explore Sanatana Dharma Archive | Bhagwatsharanpriy",
+  description: "Explore a progressive archive of Shruti, Smriti, Darshanas, Sampradayas, Yogas, Practices, Concepts, and Acharyas.",
   openGraph: {
-    title: "Explore Wisdom Tree | Bhagwatsharanpriy",
-    description: "A calm interactive knowledge graph for seeing how wisdom traditions connect.",
+    title: "Explore Sanatana Dharma Archive | Bhagwatsharanpriy",
+    description: "A calm progressive knowledge archive for unfolding scripture, philosophy, practice, concepts, lineages, and teachers.",
     type: "website",
   },
 };
@@ -24,12 +24,12 @@ export default function ExplorePage() {
       <Section className="bg-wisdom-radial pt-24 sm:pt-28">
         <Container>
           <div className="max-w-4xl">
-            <Badge>Interactive wisdom universe</Badge>
+            <Badge>Civilization archive</Badge>
             <h1 className="mt-5 font-serif text-5xl font-semibold leading-tight sm:text-6xl">
-              Everything is connected
+              Sanatana Dharma unfolds layer by layer
             </h1>
             <p className="mt-6 max-w-3xl text-xl leading-9 text-muted-foreground">
-              Open one node, follow one relationship, and watch the map become understandable without becoming noisy.
+              Begin with the root, enter Shruti or Smriti, and let scriptures, philosophies, practices, concepts, lineages, and teachers reveal themselves in sequence.
             </p>
             <Link
               href="/concepts"
@@ -52,14 +52,14 @@ export default function ExplorePage() {
         <Container>
           <SectionHeader
             eyebrow="How to read the map"
-            title="Relationships are shown gently"
-            description="The graph opens progressively. Scripture, concepts, schools, and practices are visually distinct, while the side panel explains the selected relationship in plain language."
+            title="Knowledge unfolds progressively"
+            description="The archive reveals only the current layer, the path that brought you there, and a few meaningful relationships for context."
           />
           <div className="grid gap-4 sm:grid-cols-3">
             {[
-              "Click a node to expand nearby knowledge.",
-              "Use the breadcrumb to return to the larger context.",
-              "Open a study page when a node has deeper content.",
+              "Start from Sanatana Dharma, then enter one knowledge world.",
+              "Use the breadcrumb to return to earlier layers.",
+              "Open deeper study pages when a topic has dedicated content.",
             ].map((item) => (
               <Card key={item}>
                 <CardContent className="flex gap-3 p-5">
