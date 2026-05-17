@@ -22,6 +22,16 @@ export type KnowledgeRelationshipType =
   | "PRACTICAL_PARALLEL"
   | "CONTEXTUALIZES";
 
+export type KnowledgeDifficulty = "beginner" | "intermediate" | "advanced";
+
+export type KnowledgeNodeGuidance = {
+  whyItMatters: string;
+  levelNote?: string;
+  emerged?: string;
+  prerequisiteIds?: string[];
+  recommendedNextIds?: string[];
+};
+
 export type KnowledgeNode = {
   id: string;
   slug: string;
@@ -30,6 +40,11 @@ export type KnowledgeNode = {
   summary: string;
   nodeType: KnowledgeNodeType;
   parentId?: string;
+  era?: string;
+  century?: string;
+  region?: string;
+  difficulty?: KnowledgeDifficulty;
+  guidance?: KnowledgeNodeGuidance;
   zone?: string;
   depth?: number;
   x: number;
@@ -50,6 +65,14 @@ export type KnowledgeEdge = {
   school?: string;
   bidirectional?: boolean;
   weight: number;
+};
+
+export type GuidedExplorationPath = {
+  id: string;
+  title: string;
+  summary: string;
+  difficulty: KnowledgeDifficulty;
+  nodeIds: string[];
 };
 
 export type ConceptDefinitionProfile = {
