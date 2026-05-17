@@ -563,6 +563,7 @@ function ArchiveDetailPanel({
   const recommendations = getGuidedRecommendations(node, children, edges);
   const startHerePath = node.id === ROOT_ID ? guidedExplorationPaths.find((path) => path.id === "start-here") : undefined;
   const relevantPaths = guidedExplorationPaths.filter((path) => path.id !== "start-here" && path.nodeIds.includes(node.id)).slice(0, 3);
+  const comparisonEdges = getComparisonEdges(node, edges);
 
   return (
     <aside className="surface-calm overflow-hidden rounded-lg lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
@@ -581,7 +582,7 @@ function ArchiveDetailPanel({
         <p className="mt-3 text-sm leading-7 text-foreground/74">{node.summary}</p>
         {node.era || node.century || node.region ? (
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
-            {[node.era, node.century, node.region].filter(Boolean).join(" · ")}
+            {[node.era, node.century, node.region].filter(Boolean).join(" - ")}
           </p>
         ) : null}
 
@@ -658,6 +659,20 @@ function ArchiveDetailPanel({
                   </div>
                 </div>
               ))}
+            </div>
+          </PanelSection>
+        ) : null}
+
+        {comparisonEdges.length > 0 ? (
+          <PanelSection title="Comparative View">
+            <div className="space-y-3">
+              {comparisonEdges.map((edge) => {
+                const otherId = edge.source === node.id ? edge.target : edge.source;
+                const other = getKnowledgeNode(otherId);
+                if (!other?.comparison || !node.comparison) return null;
+
+                return <ComparisonCard key={edge.id} node={node} other={other} edge={edge} onSelectNode={onSelectNode} />;
+              })}
             </div>
           </PanelSection>
         ) : null}
@@ -740,6 +755,61 @@ function GuidedNodeList({
   );
 }
 
+function ComparisonCard({
+  node,
+  other,
+  edge,
+  onSelectNode,
+}: {
+  node: KnowledgeNode;
+  other: KnowledgeNode;
+  edge: KnowledgeEdge;
+  onSelectNode: (node: KnowledgeNode) => void;
+}) {
+  if (!node.comparison || !other.comparison) return null;
+
+  const allRows: Array<[string, string | undefined, string | undefined]> = [
+    ["Core", node.comparison.coreBelief, other.comparison.coreBelief],
+    ["Brahman", node.comparison.brahman, other.comparison.brahman],
+    ["Atman", node.comparison.atman, other.comparison.atman],
+    ["Moksha", node.comparison.moksha, other.comparison.moksha],
+    ["Bhakti", node.comparison.bhakti, other.comparison.bhakti],
+    ["Ritual", node.comparison.ritual, other.comparison.ritual],
+    ["Vedas", node.comparison.vedas, other.comparison.vedas],
+  ];
+  const rows = allRows.filter(([, left, right]) => left || right);
+
+  return (
+    <div className="rounded-md border border-border bg-background/55 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">{edge.label}</p>
+          <p className="mt-1 text-xs leading-5 text-foreground/64">{edge.explanation ?? edge.summary}</p>
+        </div>
+        <Badge variant="outline">{labelForRelationship(edge.relationshipType)}</Badge>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        <div className="grid grid-cols-2 gap-2 text-xs font-medium text-foreground/80">
+          <span>{node.title}</span>
+          <button type="button" className="text-left text-primary hover:underline" onClick={() => onSelectNode(other)}>
+            {other.title}
+          </button>
+        </div>
+        {rows.slice(0, 5).map(([label, left, right]) => (
+          <div key={label} className="border-t border-border pt-3">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+            <div className="grid grid-cols-2 gap-3 text-xs leading-5 text-foreground/68">
+              <p>{left ?? "Not emphasized in this profile."}</p>
+              <p>{right ?? "Not emphasized in this profile."}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PathSequence({
   nodeIds,
   currentId,
@@ -791,6 +861,24 @@ function getGuidedRecommendations(node: KnowledgeNode, children: KnowledgeNode[]
     prerequisites: getNodesByIds(prerequisiteIds).slice(0, 4),
     next: getNodesByIds(nextIds),
   };
+}
+
+function getComparisonEdges(node: KnowledgeNode, edges: KnowledgeEdge[]) {
+  if (!node.comparison) {
+    return [];
+  }
+
+  return edges
+    .filter((edge) => ["PHILOSOPHICALLY_OPPOSED", "PHILOSOPHICALLY_SIMILAR"].includes(edge.relationshipType))
+    .filter((edge) => {
+      const otherId = edge.source === node.id ? edge.target : edge.source;
+      return Boolean(getKnowledgeNode(otherId)?.comparison);
+    })
+    .sort((a, b) => {
+      const relationshipPriority = Number(b.relationshipType === "PHILOSOPHICALLY_OPPOSED") - Number(a.relationshipType === "PHILOSOPHICALLY_OPPOSED");
+      return relationshipPriority || b.weight - a.weight;
+    })
+    .slice(0, 2);
 }
 
 function getNodesByIds(ids: string[]) {
@@ -1333,4 +1421,8 @@ function labelForType(nodeType: KnowledgeNode["nodeType"]) {
 
 function labelForDifficulty(difficulty: NonNullable<KnowledgeNode["difficulty"]>) {
   return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+}
+
+function labelForRelationship(relationshipType: KnowledgeEdge["relationshipType"]) {
+  return relationshipType.replaceAll("_", " ").toLowerCase();
 }

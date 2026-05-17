@@ -32,6 +32,16 @@ export type KnowledgeNodeGuidance = {
   recommendedNextIds?: string[];
 };
 
+export type PhilosophyComparisonProfile = {
+  coreBelief: string;
+  brahman?: string;
+  atman?: string;
+  moksha: string;
+  bhakti?: string;
+  ritual?: string;
+  vedas: string;
+};
+
 export type KnowledgeNode = {
   id: string;
   slug: string;
@@ -45,6 +55,8 @@ export type KnowledgeNode = {
   region?: string;
   difficulty?: KnowledgeDifficulty;
   guidance?: KnowledgeNodeGuidance;
+  philosophicalThemes?: string[];
+  comparison?: PhilosophyComparisonProfile;
   zone?: string;
   depth?: number;
   x: number;
